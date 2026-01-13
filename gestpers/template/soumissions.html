@@ -1,0 +1,1057 @@
+
+{% extends 'index.html' %}
+{%  block maincontent %}
+
+   
+    
+           <div class="content-wrapper">
+    <div class="content-header">
+        <h1 class="content-title">Gestion des Demande Formations</h1>
+        <p class="content-subtitle">Consultez et gérez toutes les demande formations de votre plateforme</p>
+    </div>
+    
+    <!-- Section basculable -->
+    <div class="toggle-section">
+        <div class="toggle-header">
+            <div class="toggle-buttons">
+                <button class="Toggle-btn active" id="available-toggle">
+                    <i class="fas fa-book-open"></i>
+                    <span>demande de Formations </span>
+                </button>
+                <button class="Toggle-btn" id="myformations-toggle">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Mes demandes Formations</span>
+                </button>
+            </div>
+            
+            <!-- Filtres communs -->
+            <div class="table-filters" id="common-filters">
+                <div class="filter-group">
+                    <label for="statut-filter">Statut:</label>
+                    <select id="statut-filter" class="filter-select">
+                        <option value="all">Tous les statuts</option>
+                        <option value="en_attente">En attente</option>
+                        <option value="valide">Validé</option>
+                        <option value="valide">rejeter</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="service-filter">Service:</label>
+                    <select id="service-filter" class="filter-select">
+                        <option value="all">Tous les services</option>
+                        <!-- Les options seront générées dynamiquement -->
+                    </select>
+                </div>
+                <button class="btn btn-secondary" id="reset-filters">
+                    <i class="fas fa-redo"></i>
+                    Réinitialiser
+                </button>
+            </div>
+        </div>
+        
+        <!-- Contenu des Formations Disponibles -->
+        <div class="toggle-content active" id="available-content">
+            <div class="content-actions">
+                <button class="btn btn-primary" id="add-formation">
+                    <i class="fas fa-plus"></i>
+                    Ajouter une formation
+                </button>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-available" placeholder="Rechercher une formation...">
+                </div>
+            </div>
+            
+            <!-- Tableau des Formations Disponibles -->
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="formation-table" id="available-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="id">ID <i class="fas fa-sort"></i></th>
+                                <th data-sort="titre">Titre <i class="fas fa-sort"></i></th>
+                                <th data-sort="auteur">Auteur <i class="fas fa-sort"></i></th>
+                                <th data-sort="service">Service cible <i class="fas fa-sort"></i></th>
+                                <th data-sort="user">Utilisateur cible <i class="fas fa-sort"></i></th>
+                                <th data-sort="statut">Statut <i class="fas fa-sort"></i></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="available-body">
+                            <!-- Les données seront générées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination" id="available-pagination">
+                    <!-- La pagination sera générée dynamiquement -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contenu des Mes Formations -->
+        <div class="toggle-content" id="myformations-content">
+            <div class="content-actions">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-myformations" placeholder="Rechercher dans mes formations...">
+                </div>
+            </div>
+            
+            <!-- Tableau des Mes Formations -->
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="formation-table" id="myformations-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="id">ID <i class="fas fa-sort"></i></th>
+                                <th data-sort="titre">Titre <i class="fas fa-sort"></i></th>
+                                <th data-sort="auteur">Auteur <i class="fas fa-sort"></i></th>
+                                <th data-sort="statut">Mon statut <i class="fas fa-sort"></i></th>
+                                <th data-sort="progress">Progression <i class="fas fa-sort"></i></th>
+                                <th data-sort="date_inscription">Date d'inscription <i class="fas fa-sort"></i></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myformations-body">
+                            <!-- Les données seront générées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination" id="myformations-pagination">
+                    <!-- La pagination sera générée dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styles pour la section basculable */
+    .toggle-section {
+        background-color: var(--bg-secondary);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .toggle-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--bg-tertiary);
+    }
+
+    .toggle-buttons {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .Toggle-btn {
+        padding: 12px 24px;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .Toggle-btn:hover {
+        background-color: var(--bg-tertiary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .Toggle-btn.active {
+        background-color: var(--accent-primary);
+        color: white;
+        border-color: var(--accent-primary);
+    }
+
+    .table-filters {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-group label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+
+    .filter-select {
+        padding: 8px 12px;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        min-width: 150px;
+        transition: all 0.2s ease;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .toggle-content {
+        display: none;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .toggle-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .content-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .formation-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    .formation-table thead {
+        background-color: var(--bg-tertiary);
+    }
+
+    .formation-table th {
+        padding: 16px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-color);
+        user-select: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .formation-table th:hover {
+        background-color: var(--border-color);
+    }
+
+    .formation-table th i {
+        margin-left: 8px;
+        opacity: 0.5;
+        transition: opacity 0.2s ease;
+    }
+
+    .formation-table th:hover i {
+        opacity: 1;
+    }
+
+    .formation-table tbody tr {
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.2s ease;
+    }
+
+    .formation-table tbody tr:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .dark-theme .formation-table tbody tr:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .formation-table tbody tr:hover {
+        background-color: var(--bg-tertiary);
+    }
+
+    .formation-table td {
+        padding: 16px;
+        color: var(--text-secondary);
+    }
+
+    /* Badges de statut pour les formations */
+    .statut-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .statut-en_attente {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+    }
+
+    .statut-valide {
+        background-color: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+    }
+
+    .statut-en_cours {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: var(--accent-primary);
+    }
+
+    .statut-termine {
+        background-color: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+    }
+
+    /* Barre de progression */
+    .progress-container {
+        width: 100px;
+        height: 8px;
+        background-color: var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: var(--accent-primary);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        font-size: 0.85rem;
+        margin-top: 4px;
+        color: var(--text-tertiary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .toggle-buttons {
+            flex-direction: column;
+        }
+        
+        .Toggle-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .content-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .search-container {
+            width: 100%;
+        }
+        
+        .table-filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-group {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .filter-select {
+            width: 100%;
+        }
+    }
+</style>
+
+
+
+   
+    
+{%  endblock maincontent %}
+{%  block script  %}
+<script>
+    // Données fictives pour les formations
+    const formationsData = [
+        { 
+            id: 1, 
+            titre: "Introduction au Machine Learning", 
+            auteur: "Dr. Sarah Chen", 
+            cible_service: "Data Science", 
+            cible_user: null, 
+            cible: "service",
+            statut: "valide",
+            objectifs: "Comprendre les bases du machine learning...",
+            img_path: "/media/formations/ml-intro.jpg",
+            user_create: 1
+        },
+        { 
+            id: 2, 
+            titre: "Gestion de Projet Agile", 
+            auteur: "Pierre Martin", 
+            cible_service: "Management", 
+            cible_user: null, 
+            cible: "service",
+            statut: "en_cours",
+            objectifs: "Maîtriser les méthodologies agiles...",
+            img_path: "/media/formations/agile.jpg",
+            user_create: 2
+        },
+        
+        { 
+            id: 4, 
+            titre: "Développement React", 
+            auteur: "Marie Laurent", 
+            cible_service: "Développement", 
+            cible_user: null, 
+            cible: "service",
+            statut: "termine",
+            objectifs: "Créer des applications React modernes...",
+            img_path: "/media/formations/react.jpg",
+            user_create: 4
+        },
+        { 
+            id: 5, 
+            titre: "Communication Efficace", 
+            auteur: "Sophie Bernard", 
+            cible_service: null, 
+            cible_user: "Thomas Dupont", 
+            cible: "user",
+            statut: "valide",
+            objectifs: "Améliorer ses compétences en communication...",
+            img_path: "/media/formations/communication.jpg",
+            user_create: 5
+        },
+    ];
+
+    // Données fictives pour mes formations
+    const myFormationsData = [
+        { 
+            id: 1, 
+            titre: "Introduction au Machine Learning", 
+            auteur: "Dr. Sarah Chen", 
+            my_statut: "en_cours",
+            progression: 65,
+            date_inscription: "2023-10-15",
+            derniere_activite: "2023-11-20"
+        },
+        { 
+            id: 2, 
+            titre: "Gestion de Projet Agile", 
+            auteur: "Pierre Martin", 
+            my_statut: "termine",
+            progression: 100,
+            date_inscription: "2023-09-10",
+            derniere_activite: "2023-11-05"
+        },
+        { 
+            id: 4, 
+            titre: "Développement React", 
+            auteur: "Marie Laurent", 
+            my_statut: "valide",
+            progression: 0,
+            date_inscription: "2023-11-01",
+            derniere_activite: "2023-11-01"
+        },
+    ];
+
+    // Éléments DOM
+    const availableToggle = document.getElementById('available-toggle');
+    const myformationsToggle = document.getElementById('myformations-toggle');
+    const availableContent = document.getElementById('available-content');
+    const myformationsContent = document.getElementById('myformations-content');
+    const availableBody = document.getElementById('available-body');
+    const myformationsBody = document.getElementById('myformations-body');
+    const searchAvailable = document.getElementById('search-available');
+    const searchMyformations = document.getElementById('search-myformations');
+    const statutFilter = document.getElementById('statut-filter');
+    const serviceFilter = document.getElementById('service-filter');
+    const resetFilters = document.getElementById('reset-filters');
+    const addFormationBtn = document.getElementById('add-formation');
+
+    // Variables pour la pagination et filtres
+    let currentView = 'available';
+    let currentAvailablePage = 1;
+    let currentMyFormationsPage = 1;
+    let filteredFormations = [...formationsData];
+    let filteredMyFormations = [...myFormationsData];
+    let currentSort = { column: 'id', direction: 'asc' };
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', function() {
+        // Rendre les tableaux initiaux
+        renderAvailableFormations();
+        renderMyFormations();
+        
+        // Initialiser les événements
+        initFormationEvents();
+        
+        // Générer les options de service
+        generateServiceOptions();
+    });
+
+    // Initialiser les événements
+    function initFormationEvents() {
+        // Toggle entre les vues
+        availableToggle.addEventListener('click', () => switchView('available'));
+        myformationsToggle.addEventListener('click', () => switchView('myformations'));
+        
+        // Recherche dans les formations disponibles
+        searchAvailable.addEventListener('input', filterAvailableFormations);
+        
+        // Recherche dans mes formations
+        searchMyformations.addEventListener('input', filterMyFormations);
+        
+        // Filtres
+        statutFilter.addEventListener('change', applyFilters);
+        serviceFilter.addEventListener('change', applyFilters);
+        resetFilters.addEventListener('click', resetAllFilters);
+        
+        // Bouton ajouter formation
+        addFormationBtn.addEventListener('click', openAddFormationModal);
+        
+        // Tri des colonnes
+        document.querySelectorAll('#available-table th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => sortFormations(th.getAttribute('data-sort')));
+        });
+        
+        document.querySelectorAll('#myformations-table th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => sortMyFormations(th.getAttribute('data-sort')));
+        });
+    }
+
+    // Changer de vue
+    function switchView(view) {
+        currentView = view;
+        
+        // Mettre à jour les boutons
+        availableToggle.classList.toggle('active', view === 'available');
+        myformationsToggle.classList.toggle('active', view === 'myformations');
+        
+        // Mettre à jour le contenu
+        availableContent.classList.toggle('active', view === 'available');
+        myformationsContent.classList.toggle('active', view === 'myformations');
+        
+        // Animation de transition
+        const activeContent = view === 'available' ? availableContent : myformationsContent;
+        activeContent.style.animation = 'none';
+        setTimeout(() => {
+            activeContent.style.animation = 'fadeIn 0.3s ease';
+        }, 10);
+    }
+
+    // Générer les options de service
+    function generateServiceOptions() {
+        // Extraire les services uniques des formations
+        const services = [...new Set(formationsData
+            .filter(f => f.cible_service)
+            .map(f => f.cible_service))];
+        
+        // Ajouter les options
+        services.forEach(service => {
+            const option = document.createElement('option');
+            option.value = service;
+            option.textContent = service;
+            serviceFilter.appendChild(option);
+        });
+    }
+
+    // Rendre les formations disponibles
+    function renderAvailableFormations() {
+        // Calculer les formations à afficher
+        const startIndex = (currentAvailablePage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const formationsToShow = filteredFormations.slice(startIndex, endIndex);
+        
+        // Effacer le contenu actuel
+        availableBody.innerHTML = '';
+        
+        // Ajouter les lignes du tableau
+        formationsToShow.forEach(formation => {
+            const row = document.createElement('tr');
+            
+            // Déterminer la classe CSS pour le statut
+            let statutClass = `statut-${formation.statut}`;
+            let statutText = getStatutText(formation.statut);
+            
+            // Déterminer la cible
+            let cibleText = formation.cible_service || formation.cible_user || 'Non spécifié';
+            let cibleType = formation.cible_service ? 'Service' : 'Utilisateur';
+            
+            row.innerHTML = `
+                <td>#${formation.id.toString().padStart(3, '0')}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="${formation.img_path}" alt="${formation.titre}" style="width: 40px; height: 40px; border-radius: var(--border-radius); object-fit: cover;">
+                        <div>
+                            <strong>${formation.titre}</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-tertiary);">${formation.objectifs.substring(0, 50)}...</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${formation.auteur}</td>
+                <td>${formation.cible_service || '-'}</td>
+                <td>${formation.cible_user || '-'}</td>
+                <td><span class="statut-badge ${statutClass}">${statutText}</span></td>
+                <td>
+                    <div class="action-buttons" style="flex-wrap:wrap">
+                        <button style = " font-size: 0.6em" class="action-btn edit" data-id="${formation.id}" title="Éditer">
+                            validé
+                        </button>
+                        <button style = " font-size: 0.6em" class="action-btn delete" data-id="${formation.id}" title="Supprimer">
+                            rejeté
+                        </button>
+                     
+                           <button style = " font-size: 0.6em" class="action-btn enroll" data-id="${formation.id}" title="S'inscrire">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        
+                    </div>
+                </td>
+            `;
+            
+            availableBody.appendChild(row);
+        });
+        
+        // Ajouter les événements aux boutons d'action
+        addFormationActions();
+        
+        // Générer la pagination
+        renderAvailablePagination();
+    }
+
+    // Rendre mes formations
+    function renderMyFormations() {
+        // Calculer les formations à afficher
+        const startIndex = (currentMyFormationsPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const formationsToShow = filteredMyFormations.slice(startIndex, endIndex);
+        
+        // Effacer le contenu actuel
+        myformationsBody.innerHTML = '';
+        
+        // Ajouter les lignes du tableau
+        formationsToShow.forEach(formation => {
+            const row = document.createElement('tr');
+            
+            // Déterminer la classe CSS pour le statut
+            let statutClass = `statut-${formation.my_statut}`;
+            let statutText = getStatutText(formation.my_statut);
+            
+            row.innerHTML = `
+                <td>#${formation.id.toString().padStart(3, '0')}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="/media/formations/default.jpg" alt="${formation.titre}" style="width: 40px; height: 40px; border-radius: var(--border-radius); object-fit: cover;">
+                        <div>
+                            <strong>${formation.titre}</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-tertiary);">Par ${formation.auteur}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${formation.auteur}</td>
+                <td><span class="statut-badge ${statutClass}">${statutText}</span></td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: ${formation.progression}%"></div>
+                    </div>
+                    <div class="progress-text">${formation.progression}%</div>
+                </td>
+                <td>${new Date(formation.date_inscription).toLocaleDateString('fr-FR')}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn continue" data-id="${formation.id}" title="Continuer">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="action-btn view" data-id="${formation.id}" title="Voir détails">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ${formation.progression < 100 ? 
+                            `<button class="action-btn abandon" data-id="${formation.id}" title="Abandonner">
+                                <i class="fas fa-times"></i>
+                            </button>` : ''
+                        }
+                    </div>
+                </td>
+            `;
+            
+            myformationsBody.appendChild(row);
+        });
+        
+        // Ajouter les événements aux boutons d'action
+        addMyFormationActions();
+        
+        // Générer la pagination
+        renderMyFormationsPagination();
+    }
+
+    // Ajouter les événements aux boutons d'action des formations disponibles
+    function addFormationActions() {
+        document.querySelectorAll('#available-table .action-btn.edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                editFormation(id);
+            });
+        });
+        
+        document.querySelectorAll('#available-table .action-btn.delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                deleteFormation(id);
+            });
+        });
+        
+        document.querySelectorAll('#available-table .action-btn.view').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                viewFormation(id);
+            });
+        });
+        
+        document.querySelectorAll('#available-table .action-btn.enroll').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                enrollInFormation(id);
+            });
+        });
+    }
+
+    // Ajouter les événements aux boutons d'action de mes formations
+    function addMyFormationActions() {
+        document.querySelectorAll('#myformations-table .action-btn.continue').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                continueFormation(id);
+            });
+        });
+        
+        document.querySelectorAll('#myformations-table .action-btn.view').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                viewMyFormation(id);
+            });
+        });
+        
+        document.querySelectorAll('#myformations-table .action-btn.abandon').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                abandonFormation(id);
+            });
+        });
+    }
+
+    // Filtrer les formations disponibles
+    function filterAvailableFormations() {
+        const searchTerm = searchAvailable.value.toLowerCase();
+        
+        if (searchTerm.length === 0) {
+            filteredFormations = [...formationsData];
+        } else {
+            filteredFormations = formationsData.filter(formation => 
+                formation.titre.toLowerCase().includes(searchTerm) || 
+                formation.auteur.toLowerCase().includes(searchTerm) ||
+                formation.objectifs.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        // Appliquer les filtres supplémentaires
+        applyFilters();
+    }
+
+    // Filtrer mes formations
+    function filterMyFormations() {
+        const searchTerm = searchMyformations.value.toLowerCase();
+        
+        if (searchTerm.length === 0) {
+            filteredMyFormations = [...myFormationsData];
+        } else {
+            filteredMyFormations = myFormationsData.filter(formation => 
+                formation.titre.toLowerCase().includes(searchTerm) || 
+                formation.auteur.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        currentMyFormationsPage = 1;
+        renderMyFormations();
+    }
+
+    // Appliquer les filtres
+    function applyFilters() {
+        const statutValue = statutFilter.value;
+        const serviceValue = serviceFilter.value;
+        
+        let filtered = [...formationsData];
+        
+        // Filtrer par statut
+        if (statutValue !== 'all') {
+            filtered = filtered.filter(f => f.statut === statutValue);
+        }
+        
+        // Filtrer par service
+        if (serviceValue !== 'all') {
+            filtered = filtered.filter(f => f.cible_service === serviceValue);
+        }
+        
+        // Appliquer également la recherche
+        const searchTerm = searchAvailable.value.toLowerCase();
+        if (searchTerm.length > 0) {
+            filtered = filtered.filter(formation => 
+                formation.titre.toLowerCase().includes(searchTerm) || 
+                formation.auteur.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        filteredFormations = filtered;
+        currentAvailablePage = 1;
+        renderAvailableFormations();
+    }
+
+    // Réinitialiser tous les filtres
+    function resetAllFilters() {
+        searchAvailable.value = '';
+        searchMyformations.value = '';
+        statutFilter.value = 'all';
+        serviceFilter.value = 'all';
+        
+        filteredFormations = [...formationsData];
+        filteredMyFormations = [...myFormationsData];
+        
+        currentAvailablePage = 1;
+        currentMyFormationsPage = 1;
+        
+        renderAvailableFormations();
+        renderMyFormations();
+    }
+
+    // Trier les formations disponibles
+    function sortFormations(column) {
+        // Si on clique sur la même colonne, inverser le sens de tri
+        if (currentSort.column === column) {
+            currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSort.column = column;
+            currentSort.direction = 'asc';
+        }
+        
+        // Trier les données
+        filteredFormations.sort((a, b) => {
+            let aValue = a[column];
+            let bValue = b[column];
+            
+            // Pour les colonnes spéciales
+            if (column === 'statut') {
+                const statutOrder = { 'en_attente': 1, 'valide': 2, 'en_cours': 3, 'termine': 4 };
+                aValue = statutOrder[aValue] || 5;
+                bValue = statutOrder[bValue] || 5;
+            }
+            
+            if (aValue < bValue) return currentSort.direction === 'asc' ? -1 : 1;
+            if (aValue > bValue) return currentSort.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+        
+        // Mettre à jour les icônes de tri
+        updateSortIcons('#available-table', column, currentSort.direction);
+        
+        // Re-rendre le tableau
+        renderAvailableFormations();
+    }
+
+    // Trier mes formations
+    function sortMyFormations(column) {
+        // Logique similaire pour mes formations
+        // (implémentation simplifiée)
+        renderMyFormations();
+    }
+
+    // Mettre à jour les icônes de tri
+    function updateSortIcons(tableId, column, direction) {
+        const headers = document.querySelectorAll(`${tableId} th[data-sort]`);
+        
+        headers.forEach(header => {
+            const icon = header.querySelector('i');
+            const headerColumn = header.getAttribute('data-sort');
+            
+            if (headerColumn === column) {
+                icon.className = direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            } else {
+                icon.className = 'fas fa-sort';
+            }
+        });
+    }
+
+    // Rendre la pagination pour les formations disponibles
+    function renderAvailablePagination() {
+        const totalPages = Math.ceil(filteredFormations.length / itemsPerPage);
+        const paginationContainer = document.getElementById('available-pagination');
+        
+        // Si une seule page, ne pas afficher la pagination
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+        
+        renderPagination(paginationContainer, totalPages, currentAvailablePage, 'available');
+    }
+
+    // Rendre la pagination pour mes formations
+    function renderMyFormationsPagination() {
+        const totalPages = Math.ceil(filteredMyFormations.length / itemsPerPage);
+        const paginationContainer = document.getElementById('myformations-pagination');
+        
+        // Si une seule page, ne pas afficher la pagination
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+        
+        renderPagination(paginationContainer, totalPages, currentMyFormationsPage, 'myformations');
+    }
+
+    // Fonction générique pour rendre la pagination
+    function renderPagination(container, totalPages, currentPage, type) {
+        let paginationHTML = '';
+        
+        // Bouton précédent
+        paginationHTML += `
+            <button class="pagination-btn" id="${type}-prev" ${currentPage === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        `;
+        
+        // Pages
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                paginationHTML += `
+                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}" data-type="${type}">
+                        ${i}
+                    </button>
+                `;
+            } else if (i === currentPage - 2 || i === currentPage + 2) {
+                paginationHTML += `<span class="pagination-dots">...</span>`;
+            }
+        }
+        
+        // Bouton suivant
+        paginationHTML += `
+            <button class="pagination-btn" id="${type}-next" ${currentPage === totalPages ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+        
+        container.innerHTML = paginationHTML;
+        
+        // Ajouter les événements
+        document.getElementById(`${type}-prev`)?.addEventListener('click', () => {
+            if (type === 'available' && currentAvailablePage > 1) {
+                currentAvailablePage--;
+                renderAvailableFormations();
+            } else if (type === 'myformations' && currentMyFormationsPage > 1) {
+                currentMyFormationsPage--;
+                renderMyFormations();
+            }
+        });
+        
+        document.getElementById(`${type}-next`)?.addEventListener('click', () => {
+            if (type === 'available' && currentAvailablePage < totalPages) {
+                currentAvailablePage++;
+                renderAvailableFormations();
+            } else if (type === 'myformations' && currentMyFormationsPage < totalPages) {
+                currentMyFormationsPage++;
+                renderMyFormations();
+            }
+        });
+        
+        container.querySelectorAll(`.pagination-btn[data-type="${type}"]`).forEach(btn => {
+            btn.addEventListener('click', () => {
+                const page = parseInt(btn.getAttribute('data-page'));
+                
+                if (type === 'available') {
+                    currentAvailablePage = page;
+                    renderAvailableFormations();
+                } else {
+                    currentMyFormationsPage = page;
+                    renderMyFormations();
+                }
+            });
+        });
+    }
+
+    // Obtenir le texte du statut
+    function getStatutText(statut) {
+        switch(statut) {
+            case 'en_attente': return 'En attente';
+            case 'valide': return 'Validé';
+            case 'en_cours': return 'En cours';
+            case 'termine': return 'Terminé';
+            default: return statut;
+        }
+    }
+
+    // Fonctions pour les actions (simulées)
+    function editFormation(id) {
+        alert(`Édition de la formation #${id} (simulation)`);
+    }
+    
+    function deleteFormation(id) {
+        if (confirm(`Voulez-vous vraiment supprimer la formation #${id} ?`)) {
+            alert(`Formation #${id} supprimée (simulation)`);
+        }
+    }
+    
+    function viewFormation(id) {
+        alert(`Voir détails de la formation #${id} (simulation)`);
+    }
+    
+    function enrollInFormation(id) {
+        if (confirm(`Voulez-vous vous inscrire à cette formation ?`)) {
+            alert(`Inscription réussie à la formation #${id} (simulation)`);
+        }
+    }
+    
+    function continueFormation(id) {
+        alert(`Continuer la formation #${id} (simulation)`);
+    }
+    
+    function viewMyFormation(id) {
+        alert(`Voir mes détails de la formation #${id} (simulation)`);
+    }
+    
+    function abandonFormation(id) {
+        if (confirm(`Voulez-vous vraiment abandonner cette formation ?`)) {
+            alert(`Formation #${id} abandonnée (simulation)`);
+        }
+    }
+    
+    function openAddFormationModal() {
+        alert(`Ouverture du modal d'ajout de formation (simulation)`);
+    }
+</script>
+{%  endblock script %}
+
+</body>
+</html>

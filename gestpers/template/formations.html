@@ -1,0 +1,1690 @@
+
+{% extends 'index.html' %}
+{%  block maincontent %}
+
+   
+    
+           <div class="content-wrapper">
+    <div class="content-header">
+        <h1 class="content-title">Gestion des Formations</h1>
+        <p class="content-subtitle">Consultez et gérez toutes les formations de votre plateforme</p>
+    </div>
+    
+    <!-- Section basculable -->
+    <div class="toggle-section">
+        <div class="toggle-header">
+            <div class="toggle-buttons">
+                <button class="Toggle-btn active" id="available-toggle">
+                    <i class="fas fa-book-open"></i>
+                    <span>Formations Disponibles</span>
+                </button>
+                <button class="Toggle-btn" id="myformations-toggle">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Mes Formations</span>
+                </button>
+            </div>
+            
+            <!-- Filtres communs -->
+            <div class="table-filters" id="common-filters">
+                <div class="filter-group">
+                    <label for="statut-filter">Statut:</label>
+                    <select id="statut-filter" class="filter-select">
+                        <option value="all">Tous les statuts</option>
+                        <option value="en_cours">En cours</option>
+                        <option value="termine">Terminé</option>
+                    </select>
+                </div>
+               
+                <button class="btn btn-secondary" id="reset-filters">
+                    <i class="fas fa-redo"></i>
+                    Réinitialiser
+                </button>
+            </div>
+        </div>
+        
+        <!-- Contenu des Formations Disponibles -->
+        <div class="toggle-content active" id="available-content">
+            <div class="content-actions">
+                <a href="{% url 'create_demande'%}" class="btn btn-primary" id="add-formation">
+                    <i class="fas fa-plus"></i>
+                    Ajouter une formation
+                </a>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-available" placeholder="Rechercher une formation...">
+                </div>
+            </div>
+            
+            <!-- Tableau des Formations Disponibles -->
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="formation-table" id="available-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="id">ID <i class="fas fa-sort"></i></th>
+                                <th data-sort="titre">Titre <i class="fas fa-sort"></i></th>
+                                <th data-sort="auteur">Auteur <i class="fas fa-sort"></i></th>
+                                <th data-sort="service"> Cible <i class="fas fa-sort"></i></th>
+                                <th data-sort="statut">Statut <i class="fas fa-sort"></i></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="available-body">
+                            <!-- Les données seront générées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination" id="available-pagination">
+                    <!-- La pagination sera générée dynamiquement -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contenu des Mes Formations -->
+        <div class="toggle-content" id="myformations-content">
+            <div class="content-actions">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-myformations" placeholder="Rechercher dans mes formations...">
+                </div>
+            </div>
+            
+            <!-- Tableau des Mes Formations -->
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="formation-table" id="myformations-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="id">ID <i class="fas fa-sort"></i></th>
+                                <th data-sort="titre">Titre <i class="fas fa-sort"></i></th>
+                                <th data-sort="auteur">Auteur <i class="fas fa-sort"></i></th>
+                                <th data-sort="statut">Mon statut <i class="fas fa-sort"></i></th>
+                                <th data-sort="progress">Progression <i class="fas fa-sort"></i></th>
+                                <th data-sort="date_inscription">Date d'inscription <i class="fas fa-sort"></i></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="myformations-body">
+                            <!-- Les données seront générées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination" id="myformations-pagination">
+                    <!-- La pagination sera générée dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" action="{% url 'create_demande'%}"  id="formation-modal">
+    <div class="modal formation-modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Créer une nouvelle formation</h3>
+            <button class="modal-close" id="formation-modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            <form id="create-formation-form" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="formation-titre">
+                            <i class="fas fa-heading"></i>
+                            Titre de la formation
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" id="formation-titre" name="titre" class="form-input" 
+                               placeholder="Ex: Introduction au Machine Learning" 
+                               maxlength="255" required>
+                        <div class="form-help">Maximum 255 caractères</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="formation-auteur">
+                            <i class="fas fa-user"></i>
+                            Auteur/Formateur
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" id="formation-auteur" name="auteur" class="form-input" 
+                               placeholder="Ex: Dr. Sarah Chen" 
+                               maxlength="255" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="formation-debut">
+                            <i class="fas fa-calendar-alt"></i>
+                            Date de début
+                        </label>
+                        <input type="date" id="formation-debut" name="debut" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="formation-fin">
+                            <i class="fas fa-calendar-alt"></i>
+                            Date de fin
+                        </label>
+                        <input type="date" id="formation-fin" name="fin" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="formation-type">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            Type de formation
+                            <span class="required">*</span>
+                        </label>
+                        <div class="type-selector">
+                            <div class="type-option">
+                                <input type="radio" id="type-presentiel" name="type" value="presentiel" checked>
+                                <label for="type-presentiel">
+                                    <i class="fas fa-users"></i>
+                                    <span>Présentiel</span>
+                                </label>
+                            </div>
+                            <div class="type-option">
+                                <input type="radio" id="type-distanciel" name="type" value="distanciel">
+                                <label for="type-distanciel">
+                                    <i class="fas fa-laptop"></i>
+                                    <span>Distanciel</span>
+                                </label>
+                            </div>
+                            <div class="type-option">
+                                <input type="radio" id="type-hybride" name="type" value="hybride">
+                                <label for="type-hybride">
+                                    <i class="fas fa-blender"></i>
+                                    <span>Hybride</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formation-objectifs">
+                        <i class="fas fa-bullseye"></i>
+                        Objectifs de la formation
+                        <span class="required">*</span>
+                    </label>
+                    <textarea id="formation-objectifs" name="objectifs" class="form-textarea" 
+                              placeholder="Décrivez les objectifs pédagogiques de cette formation..." 
+                              rows="4" required></textarea>
+                    <div class="form-help">Détaillez les compétences que les participants acquerront</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formation-img">
+                        <i class="fas fa-image"></i>
+                        Image de couverture
+                    </label>
+                    <div class="image-upload-container">
+                        <div class="image-preview" id="image-preview">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Aucune image sélectionnée</span>
+                            <div class="image-preview-text">Format recommandé: 800x450px (16:9)</div>
+                        </div>
+                        <input type="file" id="formation-img" name="img_path" 
+                               class="file-input" accept="image/*" hidden>
+                        <button type="button" class="btn btn-secondary" id="browse-image">
+                            <i class="fas fa-folder-open"></i>
+                            Parcourir...
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formation-cible">
+                        <i class="fas fa-bullseye"></i>
+                        Cible de la formation
+                    </label>
+                    <div class="cible-selector">
+                        <div class="cible-option">
+                            <input type="radio" id="cible-service" name="cible" value="service" checked>
+                            <label for="cible-service">
+                                <i class="fas fa-building"></i>
+                                <span>Service spécifique</span>
+                            </label>
+                        </div>
+                        <div class="cible-option">
+                            <input type="radio" id="cible-user" name="cible" value="user">
+                            <label for="cible-user">
+                                <i class="fas fa-user"></i>
+                                <span>Utilisateur spécifique</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="cible-details" id="cible-service-details">
+                        <select id="formation-service" name="cible_service" class="form-select">
+                            <option value="">Sélectionnez un service...</option>
+                            <option value="data_science">Data Science</option>
+                            <option value="developpement">Développement</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="rh">Ressources Humaines</option>
+                            <option value="finance">Finance</option>
+                        </select>
+                    </div>
+                    
+                    <div class="cible-details" id="cible-user-details" style="display: none;">
+                        <select id="formation-user" name="cible_user" class="form-select">
+                            <option value="">Sélectionnez un utilisateur...</option>
+                            <option value="1">Thomas Dubois</option>
+                            <option value="2">Sophie Martin</option>
+                            <option value="3">Alexandre Leroy</option>
+                            <option value="4">Emma Petit</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="formation-statut">
+                        <i class="fas fa-chart-line"></i>
+                        Statut initial
+                    </label>
+                    <div class="statut-selector">
+                        <div class="statut-option">
+                            <input type="radio" id="statut-en_attente" name="statut" value="en_attente">
+                            <label for="statut-en_attente" class="statut-badge statut-en_attente">
+                                En attente
+                            </label>
+                        </div>
+                        <div class="statut-option">
+                            <input type="radio" id="statut-valide" name="statut" value="valide" checked>
+                            <label for="statut-valide" class="statut-badge statut-valide">
+                                Validé
+                            </label>
+                        </div>
+                        <div class="statut-option">
+                            <input type="radio" id="statut-en_cours" name="statut" value="en_cours">
+                            <label for="statut-en_cours" class="statut-badge statut-en_cours">
+                                En cours
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-formation">
+                Annuler
+            </button>
+            <button class="btn btn-primary" id="save-formation">
+                <i class="fas fa-save"></i>
+                Créer la formation
+            </button>
+        </div>
+    </div>
+</form>
+
+<style>
+    /* Styles spécifiques au formulaire de formation */
+    .formation-modal {
+        max-width: 100%;
+        max-height:100%;
+        overflow-y: auto;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .form-group label i {
+        color: var(--accent-primary);
+        width: 20px;
+        text-align: center;
+    }
+
+    .required {
+        color: #ef4444;
+        margin-left: 4px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+    }
+
+    .form-help {
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+        margin-top: 6px;
+    }
+
+    /* Sélecteurs de type */
+    .type-selector, .cible-selector, .statut-selector {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .type-option, .cible-option, .statut-option {
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .type-option input, .cible-option input, .statut-option input {
+        display: none;
+    }
+
+    .type-option label, .cible-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        border-radius: var(--border-radius);
+        border: 2px solid var(--border-color);
+        background-color: var(--bg-primary);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+        gap: 8px;
+    }
+
+    .type-option label i, .cible-option label i {
+        font-size: 1.5rem;
+        color: var(--text-secondary);
+        transition: color 0.2s ease;
+    }
+
+    .type-option label span, .cible-option label span {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .type-option input:checked + label,
+    .cible-option input:checked + label {
+        border-color: var(--accent-primary);
+        background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    .type-option input:checked + label i,
+    .cible-option input:checked + label span {
+        color: var(--accent-primary);
+    }
+
+    .type-option:hover label,
+    .cible-option:hover label {
+        border-color: var(--accent-primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Sélecteur de statut */
+    .statut-option label {
+        display: block;
+        padding: 12px;
+        text-align: center;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .statut-option input:checked + label {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Détails cible */
+    .cible-details {
+        margin-top: 16px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    /* Upload d'image */
+    .image-upload-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .image-preview {
+        border: 2px dashed var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 40px 20px;
+        text-align: center;
+        background-color: var(--bg-primary);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .image-preview:hover {
+        border-color: var(--accent-primary);
+        background-color: rgba(59, 130, 246, 0.02);
+    }
+
+    .image-preview i {
+        font-size: 2.5rem;
+        color: var(--text-tertiary);
+    }
+
+    .image-preview span {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .image-preview-text {
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+    }
+
+    .image-preview.has-image {
+        border-style: solid;
+        padding: 0;
+    }
+
+    .image-preview.has-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .image-preview.has-image i,
+    .image-preview.has-image span,
+    .image-preview.has-image .image-preview-text {
+        display: none;
+    }
+
+    .upload-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    /* Validation */
+    .form-input:invalid, .form-textarea:invalid {
+        border-color: #ef4444;
+    }
+
+    .form-input:valid, .form-textarea:valid {
+        border-color: #10b981;
+    }
+
+    .error-message {
+        color: #ef4444;
+        font-size: 0.85rem;
+        margin-top: 6px;
+        display: none;
+    }
+
+    .form-input:invalid + .error-message,
+    .form-textarea:invalid + .error-message {
+        display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .formation-modal {
+            width: 95%;
+            margin: 10px;
+        }
+        
+        .form-row {
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .type-selector, .cible-selector, .statut-selector {
+            flex-direction: column;
+        }
+        
+        .type-option, .cible-option, .statut-option {
+            min-width: auto;
+        }
+        
+        .upload-actions {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .formation-modal {
+            max-height: 85vh;
+        }
+        
+        .modal-header, .modal-body, .modal-footer {
+            padding: 16px;
+        }
+    }
+</style>
+
+<script>
+    // Gestion du formulaire de création de formation
+    document.addEventListener('DOMContentLoaded', function() {
+        const formationModal = document.getElementById('formation-modal');
+        const formationModalClose = document.getElementById('formation-modal-close');
+        const cancelFormationBtn = document.getElementById('cancel-formation');
+        const saveFormationBtn = document.getElementById('save-formation');
+        const createFormForm = document.getElementById('create-formation-form');
+        const browseImageBtn = document.getElementById('browse-image');
+        const imageInput = document.getElementById('formation-img');
+        const imagePreview = document.getElementById('image-preview');
+        const cibleServiceRadio = document.getElementById('cible-service');
+        const cibleUserRadio = document.getElementById('cible-user');
+        const cibleServiceDetails = document.getElementById('cible-service-details');
+        const cibleUserDetails = document.getElementById('cible-user-details');
+        const formationDebut = document.getElementById('formation-debut');
+        const formationFin = document.getElementById('formation-fin');
+
+        // Événement pour ouvrir le modal (à connecter avec le bouton d'ajout)
+        document.getElementById('add-formation').addEventListener('click', openFormationModal);
+
+        // Ouvrir le modal
+        function openFormationModal() {
+            // Réinitialiser le formulaire
+            createFormForm.reset();
+            resetImagePreview();
+            
+            // Définir la date d'aujourd'hui par défaut pour le début
+            const today = new Date().toISOString().split('T')[0];
+            formationDebut.min = today;
+            formationFin.min = today;
+            
+            // Réinitialiser les sélecteurs
+            cibleServiceRadio.checked = true;
+            cibleServiceDetails.style.display = 'block';
+            cibleUserDetails.style.display = 'none';
+            
+            // Afficher le modal avec animation
+            formationModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Focus sur le premier champ
+            setTimeout(() => {
+                document.getElementById('formation-titre').focus();
+            }, 300);
+        }
+
+        // Fermer le modal
+        function closeFormationModal() {
+            formationModal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Réinitialiser la prévisualisation d'image
+        function resetImagePreview() {
+            imagePreview.classList.remove('has-image');
+            imagePreview.innerHTML = `
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Aucune image sélectionnée</span>
+                <div class="image-preview-text">Format recommandé: 800x450px (16:9)</div>
+            `;
+            imagePreview.style.backgroundImage = '';
+        }
+
+        // Gérer la prévisualisation de l'image
+        function handleImagePreview(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.classList.add('has-image');
+                    imagePreview.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = 'Prévisualisation';
+                    imagePreview.appendChild(img);
+                    
+                    // Ajouter un bouton pour supprimer l'image
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn btn-secondary btn-small';
+                    removeBtn.innerHTML = '<i class="fas fa-trash"></i> Supprimer';
+                    removeBtn.style.position = 'absolute';
+                    removeBtn.style.bottom = '10px';
+                    removeBtn.style.right = '10px';
+                    removeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        imageInput.value = '';
+                        resetImagePreview();
+                    });
+                    imagePreview.appendChild(removeBtn);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Validation de la date
+        function validateDates() {
+            if (formationDebut.value && formationFin.value) {
+                const debut = new Date(formationDebut.value);
+                const fin = new Date(formationFin.value);
+                
+                if (fin < debut) {
+                    formationFin.setCustomValidity('La date de fin doit être après la date de début');
+                    formationFin.reportValidity();
+                    return false;
+                }
+            }
+            formationFin.setCustomValidity('');
+            return true;
+        }
+
+      
+        function initFormationFormEvents() {
+            // Fermer le modal
+            formationModalClose.addEventListener('click', closeFormationModal);
+            cancelFormationBtn.addEventListener('click', closeFormationModal);
+            formationModal.addEventListener('click', function(e) {
+                if (e.target === formationModal) closeFormationModal();
+            });
+
+            // Gestion de l'image
+            browseImageBtn.addEventListener('click', () => imageInput.click());
+            imageInput.addEventListener('change', handleImagePreview);
+            imagePreview.addEventListener('click', () => imageInput.click());
+
+            // Gestion des cibles
+            cibleServiceRadio.addEventListener('change', handleCibleChange);
+            cibleUserRadio.addEventListener('change', handleCibleChange);
+
+            // Validation des dates
+            formationDebut.addEventListener('change', function() {
+                if (this.value) {
+                    formationFin.min = this.value;
+                }
+                validateDates();
+            });
+            
+            formationFin.addEventListener('change', validateDates);
+
+            // Soumission du formulaire
+            saveFormationBtn.addEventListener('click', submitFormationForm);
+            createFormForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitFormationForm();
+            });
+        }
+
+        // Soumettre le formulaire
+        function submitFormationForm() {
+            // Valider les dates
+            if (!validateDates()) {
+                return;
+            }
+
+            // Validation des champs requis
+            if (!createFormForm.checkValidity()) {
+                // Afficher les messages d'erreur
+                createFormForm.reportValidity();
+                return;
+            }
+
+            // Collecter les données du formulaire
+            const formData = new FormData(createFormForm);
+            
+        
+        }
+
+      
+        
+      
+    });
+
+    // Fonctions pour l'indicateur de chargement (si elles n'existent pas déjà)
+    function showLoading() {
+        // Si vous avez déjà une fonction showLoading(), elle sera utilisée
+        // Sinon, voici une implémentation basique
+        const loadingOverlay = document.getElementById('loading-overlay') || 
+            (() => {
+                const div = document.createElement('div');
+                div.className = 'loading-overlay';
+                div.id = 'loading-overlay';
+                div.innerHTML = '<div class="loading-spinner"></div>';
+                document.body.appendChild(div);
+                return div;
+            })();
+        loadingOverlay.classList.add('show');
+    }
+
+    function hideLoading() {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('show');
+        }
+    }
+</script>
+<style>
+    /* Styles pour la section basculable */
+    .toggle-section {
+        background-color: var(--bg-secondary);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .toggle-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--bg-tertiary);
+    }
+
+    .toggle-buttons {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .Toggle-btn {
+        padding: 12px 24px;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .Toggle-btn:hover {
+        background-color: var(--bg-tertiary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .Toggle-btn.active {
+        background-color: var(--accent-primary);
+        color: white;
+        border-color: var(--accent-primary);
+    }
+
+    .table-filters {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-group label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+
+    .filter-select {
+        padding: 8px 12px;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        min-width: 150px;
+        transition: all 0.2s ease;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .toggle-content {
+        display: none;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .toggle-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .content-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .formation-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    .formation-table thead {
+        background-color: var(--bg-tertiary);
+    }
+
+    .formation-table th {
+        padding: 16px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-color);
+        user-select: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .formation-table th:hover {
+        background-color: var(--border-color);
+    }
+
+    .formation-table th i {
+        margin-left: 8px;
+        opacity: 0.5;
+        transition: opacity 0.2s ease;
+    }
+
+    .formation-table th:hover i {
+        opacity: 1;
+    }
+
+    .formation-table tbody tr {
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.2s ease;
+    }
+
+    .formation-table tbody tr:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .dark-theme .formation-table tbody tr:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .formation-table tbody tr:hover {
+        background-color: var(--bg-tertiary);
+    }
+
+    .formation-table td {
+        padding: 16px;
+        color: var(--text-secondary);
+    }
+
+    /* Badges de statut pour les formations */
+    .statut-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .statut-en_attente {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+    }
+
+    .statut-valide {
+        background-color: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+    }
+
+    .statut-en_cours {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: var(--accent-primary);
+    }
+
+    .statut-termine {
+        background-color: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+    }
+
+    /* Barre de progression */
+    .progress-container {
+        width: 100px;
+        height: 8px;
+        background-color: var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: var(--accent-primary);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        font-size: 0.85rem;
+        margin-top: 4px;
+        color: var(--text-tertiary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .toggle-buttons {
+            flex-direction: column;
+        }
+        
+        .Toggle-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .content-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .search-container {
+            width: 100%;
+        }
+        
+        .table-filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-group {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .filter-select {
+            width: 100%;
+        }
+    }
+</style>
+
+
+
+   
+    
+{%  endblock maincontent %}
+{%  block script  %}
+<script>
+    // Données fictives pour les formations
+    const formationsData = [
+        {% for f in formations  %}
+        { 
+            id: {{f.id}}, 
+            titre: "{{f.titre}}", 
+            auteur: "{{f.auteur}}", 
+            cible_service: "{% if f.cible_service  %}{{f.cible_service}}{%else%}{{f.cible_user}}{%endif%}", 
+            cible_user: "{% if f.cible_user  %}{{f.cible_user}}{%else%}{{f.cible_service}}{%endif%}", 
+            cible: "{% if f.cible  %}{{f.cible}}{%else%}Néant{%endif%}",
+            statut: "{{f.statut}}",
+            objectifs: "{{f.objectifs}}",
+            img_path: "{{f.img_path.url}}",
+            user_create: "{{f.user_create}}"
+        },
+        {%endfor %}
+
+       
+    ];
+
+    // Données fictives pour mes formations
+    const myFormationsData = [
+        { 
+            id: 1, 
+            titre: "Introduction au Machine Learning", 
+            auteur: "Dr. Sarah Chen", 
+            my_statut: "en_cours",
+            progression: 65,
+            date_inscription: "2023-10-15",
+            derniere_activite: "2023-11-20"
+        },
+        { 
+            id: 2, 
+            titre: "Gestion de Projet Agile", 
+            auteur: "Pierre Martin", 
+            my_statut: "termine",
+            progression: 100,
+            date_inscription: "2023-09-10",
+            derniere_activite: "2023-11-05"
+        },
+        { 
+            id: 4, 
+            titre: "Développement React", 
+            auteur: "Marie Laurent", 
+            my_statut: "valide",
+            progression: 0,
+            date_inscription: "2023-11-01",
+            derniere_activite: "2023-11-01"
+        },
+    ];
+
+    // Éléments DOM
+    const availableToggle = document.getElementById('available-toggle');
+    const myformationsToggle = document.getElementById('myformations-toggle');
+    const availableContent = document.getElementById('available-content');
+    const myformationsContent = document.getElementById('myformations-content');
+    const availableBody = document.getElementById('available-body');
+    const myformationsBody = document.getElementById('myformations-body');
+    const searchAvailable = document.getElementById('search-available');
+    const searchMyformations = document.getElementById('search-myformations');
+    const statutFilter = document.getElementById('statut-filter');
+    const serviceFilter = document.getElementById('service-filter');
+    const resetFilters = document.getElementById('reset-filters');
+    const addFormationBtn = document.getElementById('add-formation');
+
+    // Variables pour la pagination et filtres
+    let currentView = 'available';
+    let currentAvailablePage = 1;
+    let currentMyFormationsPage = 1;
+    let filteredFormations = [...formationsData];
+    let filteredMyFormations = [...myFormationsData];
+    let currentSort = { column: 'id', direction: 'asc' };
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', function() {
+        // Rendre les tableaux initiaux
+        renderAvailableFormations();
+        renderMyFormations();
+        
+        // Initialiser les événements
+        initFormationEvents();
+        
+        // Générer les options de service
+        generateServiceOptions();
+    });
+
+    // Initialiser les événements
+    function initFormationEvents() {
+        // Toggle entre les vues
+        availableToggle.addEventListener('click', () => switchView('available'));
+        myformationsToggle.addEventListener('click', () => switchView('myformations'));
+        
+        // Recherche dans les formations disponibles
+        searchAvailable.addEventListener('input', filterAvailableFormations);
+        
+        // Recherche dans mes formations
+        searchMyformations.addEventListener('input', filterMyFormations);
+        
+        // Filtres
+        statutFilter.addEventListener('change', applyFilters);
+        serviceFilter.addEventListener('change', applyFilters);
+        resetFilters.addEventListener('click', resetAllFilters);
+        
+        // Bouton ajouter formation
+        addFormationBtn.addEventListener('click', openAddFormationModal);
+        
+        // Tri des colonnes
+        document.querySelectorAll('#available-table th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => sortFormations(th.getAttribute('data-sort')));
+        });
+        
+        document.querySelectorAll('#myformations-table th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => sortMyFormations(th.getAttribute('data-sort')));
+        });
+    }
+
+    // Changer de vue
+    function switchView(view) {
+        currentView = view;
+        
+        // Mettre à jour les boutons
+        availableToggle.classList.toggle('active', view === 'available');
+        myformationsToggle.classList.toggle('active', view === 'myformations');
+        
+        // Mettre à jour le contenu
+        availableContent.classList.toggle('active', view === 'available');
+        myformationsContent.classList.toggle('active', view === 'myformations');
+        
+        // Animation de transition
+        const activeContent = view === 'available' ? availableContent : myformationsContent;
+        activeContent.style.animation = 'none';
+        setTimeout(() => {
+            activeContent.style.animation = 'fadeIn 0.3s ease';
+        }, 10);
+    }
+
+    // Générer les options de service
+    function generateServiceOptions() {
+        // Extraire les services uniques des formations
+        const services = [...new Set(formationsData
+            .filter(f => f.cible_service)
+            .map(f => f.cible_service))];
+        
+        // Ajouter les options
+        services.forEach(service => {
+            const option = document.createElement('option');
+            option.value = service;
+            option.textContent = service;
+            serviceFilter.appendChild(option);
+        });
+    }
+
+    // Rendre les formations disponibles
+    function renderAvailableFormations() {
+        // Calculer les formations à afficher
+        const startIndex = (currentAvailablePage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const formationsToShow = filteredFormations.slice(startIndex, endIndex);
+        
+        // Effacer le contenu actuel
+        availableBody.innerHTML = '';
+        
+        // Ajouter les lignes du tableau
+        formationsToShow.forEach(formation => {
+            const row = document.createElement('tr');
+            
+            // Déterminer la classe CSS pour le statut
+            let statutClass = `statut-${formation.statut}`;
+            let statutText = getStatutText(formation.statut);
+            
+            // Déterminer la cible
+            let cibleText = formation.cible_service || formation.cible_user || 'Non spécifié';
+            let cibleType = formation.cible_service ? 'Service' : 'Utilisateur';
+            
+            row.innerHTML = `
+                <td>#${formation.id.toString().padStart(3, '0')}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="${formation.img_path}" alt="${formation.titre}" style="width: 40px; height: 40px; border-radius: var(--border-radius); object-fit: cover;">
+                        <div>
+                            <strong>${formation.titre}</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-tertiary);">${formation.objectifs.substring(0, 50)}...</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${formation.auteur}</td>
+                <td>${formation.cible_user || '-'}</td>
+                <td><span class="statut-badge ${statutClass}">${statutText}</span></td>
+                <td>
+                    <div class="action-buttons">
+                      
+                        <button class="action-btn view" data-id="${formation.id}" title="Voir détails">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ${formation.statut === 'valide' ? 
+                            `<button class="action-btn enroll" data-id="${formation.id}" title="S'inscrire">
+                                <i class="fas fa-user-plus"></i>
+                            </button>` : ''
+                        }
+                    </div>
+                </td>
+            `;
+            
+            availableBody.appendChild(row);
+        });
+        
+        // Ajouter les événements aux boutons d'action
+        addFormationActions();
+        
+        // Générer la pagination
+        renderAvailablePagination();
+    }
+
+    // Rendre mes formations
+    function renderMyFormations() {
+        // Calculer les formations à afficher
+        const startIndex = (currentMyFormationsPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const formationsToShow = filteredMyFormations.slice(startIndex, endIndex);
+        
+        // Effacer le contenu actuel
+        myformationsBody.innerHTML = '';
+        
+        // Ajouter les lignes du tableau
+        formationsToShow.forEach(formation => {
+            const row = document.createElement('tr');
+            
+            // Déterminer la classe CSS pour le statut
+            let statutClass = `statut-${formation.my_statut}`;
+            let statutText = getStatutText(formation.my_statut);
+            
+            row.innerHTML = `
+                <td>#${formation.id.toString().padStart(3, '0')}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="/media/formations/default.jpg" alt="${formation.titre}" style="width: 40px; height: 40px; border-radius: var(--border-radius); object-fit: cover;">
+                        <div>
+                            <strong>${formation.titre}</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-tertiary);">Par ${formation.auteur}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${formation.auteur}</td>
+                <td><span class="statut-badge ${statutClass}">${statutText}</span></td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: ${formation.progression}%"></div>
+                    </div>
+                    <div class="progress-text">${formation.progression}%</div>
+                </td>
+                <td>${new Date(formation.date_inscription).toLocaleDateString('fr-FR')}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn continue" data-id="${formation.id}" title="Continuer">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="action-btn view" data-id="${formation.id}" title="Voir détails">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ${formation.progression < 100 ? 
+                            `<button class="action-btn abandon" data-id="${formation.id}" title="Abandonner">
+                                <i class="fas fa-times"></i>
+                            </button>` : ''
+                        }
+                    </div>
+                </td>
+            `;
+            
+            myformationsBody.appendChild(row);
+        });
+        
+        // Ajouter les événements aux boutons d'action
+        addMyFormationActions();
+        
+        // Générer la pagination
+        renderMyFormationsPagination();
+    }
+
+    // Ajouter les événements aux boutons d'action des formations disponibles
+    function addFormationActions() {
+        document.querySelectorAll('#available-table .action-btn.edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                editFormation(id);
+            });
+        });
+        
+        document.querySelectorAll('#available-table .action-btn.delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                deleteFormation(id);
+            });
+        });
+        
+        document.querySelectorAll('#available-table .action-btn.view').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                viewFormation(id);
+            });
+        });
+        
+        document.querySelectorAll('#available-table .action-btn.enroll').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                enrollInFormation(id);
+            });
+        });
+    }
+
+    // Ajouter les événements aux boutons d'action de mes formations
+    function addMyFormationActions() {
+        document.querySelectorAll('#myformations-table .action-btn.continue').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                continueFormation(id);
+            });
+        });
+        
+        document.querySelectorAll('#myformations-table .action-btn.view').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                viewMyFormation(id);
+            });
+        });
+        
+        document.querySelectorAll('#myformations-table .action-btn.abandon').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.getAttribute('data-id'));
+                abandonFormation(id);
+            });
+        });
+    }
+
+    // Filtrer les formations disponibles
+    function filterAvailableFormations() {
+        const searchTerm = searchAvailable.value.toLowerCase();
+        
+        if (searchTerm.length === 0) {
+            filteredFormations = [...formationsData];
+        } else {
+            filteredFormations = formationsData.filter(formation => 
+                formation.titre.toLowerCase().includes(searchTerm) || 
+                formation.auteur.toLowerCase().includes(searchTerm) ||
+                formation.objectifs.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        // Appliquer les filtres supplémentaires
+        applyFilters();
+    }
+
+    // Filtrer mes formations
+    function filterMyFormations() {
+        const searchTerm = searchMyformations.value.toLowerCase();
+        
+        if (searchTerm.length === 0) {
+            filteredMyFormations = [...myFormationsData];
+        } else {
+            filteredMyFormations = myFormationsData.filter(formation => 
+                formation.titre.toLowerCase().includes(searchTerm) || 
+                formation.auteur.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        currentMyFormationsPage = 1;
+        renderMyFormations();
+    }
+
+    // Appliquer les filtres
+    function applyFilters() {
+        const statutValue = statutFilter.value;
+        const serviceValue = serviceFilter.value;
+        
+        let filtered = [...formationsData];
+        
+        // Filtrer par statut
+        if (statutValue !== 'all') {
+            filtered = filtered.filter(f => f.statut === statutValue);
+        }
+        
+        // Filtrer par service
+        if (serviceValue !== 'all') {
+            filtered = filtered.filter(f => f.cible_service === serviceValue);
+        }
+        
+        // Appliquer également la recherche
+        const searchTerm = searchAvailable.value.toLowerCase();
+        if (searchTerm.length > 0) {
+            filtered = filtered.filter(formation => 
+                formation.titre.toLowerCase().includes(searchTerm) || 
+                formation.auteur.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        filteredFormations = filtered;
+        currentAvailablePage = 1;
+        renderAvailableFormations();
+    }
+
+    // Réinitialiser tous les filtres
+    function resetAllFilters() {
+        searchAvailable.value = '';
+        searchMyformations.value = '';
+        statutFilter.value = 'all';
+        serviceFilter.value = 'all';
+        
+        filteredFormations = [...formationsData];
+        filteredMyFormations = [...myFormationsData];
+        
+        currentAvailablePage = 1;
+        currentMyFormationsPage = 1;
+        
+        renderAvailableFormations();
+        renderMyFormations();
+    }
+
+    // Trier les formations disponibles
+    function sortFormations(column) {
+        // Si on clique sur la même colonne, inverser le sens de tri
+        if (currentSort.column === column) {
+            currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSort.column = column;
+            currentSort.direction = 'asc';
+        }
+        
+        // Trier les données
+        filteredFormations.sort((a, b) => {
+            let aValue = a[column];
+            let bValue = b[column];
+            
+            // Pour les colonnes spéciales
+            if (column === 'statut') {
+                const statutOrder = { 'en_attente': 1, 'valide': 2, 'en_cours': 3, 'termine': 4 };
+                aValue = statutOrder[aValue] || 5;
+                bValue = statutOrder[bValue] || 5;
+            }
+            
+            if (aValue < bValue) return currentSort.direction === 'asc' ? -1 : 1;
+            if (aValue > bValue) return currentSort.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+        
+        // Mettre à jour les icônes de tri
+        updateSortIcons('#available-table', column, currentSort.direction);
+        
+        // Re-rendre le tableau
+        renderAvailableFormations();
+    }
+
+    // Trier mes formations
+    function sortMyFormations(column) {
+        // Logique similaire pour mes formations
+        // (implémentation simplifiée)
+        renderMyFormations();
+    }
+
+    // Mettre à jour les icônes de tri
+    function updateSortIcons(tableId, column, direction) {
+        const headers = document.querySelectorAll(`${tableId} th[data-sort]`);
+        
+        headers.forEach(header => {
+            const icon = header.querySelector('i');
+            const headerColumn = header.getAttribute('data-sort');
+            
+            if (headerColumn === column) {
+                icon.className = direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            } else {
+                icon.className = 'fas fa-sort';
+            }
+        });
+    }
+
+    // Rendre la pagination pour les formations disponibles
+    function renderAvailablePagination() {
+        const totalPages = Math.ceil(filteredFormations.length / itemsPerPage);
+        const paginationContainer = document.getElementById('available-pagination');
+        
+        // Si une seule page, ne pas afficher la pagination
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+        
+        renderPagination(paginationContainer, totalPages, currentAvailablePage, 'available');
+    }
+
+    // Rendre la pagination pour mes formations
+    function renderMyFormationsPagination() {
+        const totalPages = Math.ceil(filteredMyFormations.length / itemsPerPage);
+        const paginationContainer = document.getElementById('myformations-pagination');
+        
+        // Si une seule page, ne pas afficher la pagination
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+        
+        renderPagination(paginationContainer, totalPages, currentMyFormationsPage, 'myformations');
+    }
+
+    // Fonction générique pour rendre la pagination
+    function renderPagination(container, totalPages, currentPage, type) {
+        let paginationHTML = '';
+        
+        // Bouton précédent
+        paginationHTML += `
+            <button class="pagination-btn" id="${type}-prev" ${currentPage === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        `;
+        
+        // Pages
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                paginationHTML += `
+                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}" data-type="${type}">
+                        ${i}
+                    </button>
+                `;
+            } else if (i === currentPage - 2 || i === currentPage + 2) {
+                paginationHTML += `<span class="pagination-dots">...</span>`;
+            }
+        }
+        
+        // Bouton suivant
+        paginationHTML += `
+            <button class="pagination-btn" id="${type}-next" ${currentPage === totalPages ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+        
+        container.innerHTML = paginationHTML;
+        
+        // Ajouter les événements
+        document.getElementById(`${type}-prev`)?.addEventListener('click', () => {
+            if (type === 'available' && currentAvailablePage > 1) {
+                currentAvailablePage--;
+                renderAvailableFormations();
+            } else if (type === 'myformations' && currentMyFormationsPage > 1) {
+                currentMyFormationsPage--;
+                renderMyFormations();
+            }
+        });
+        
+        document.getElementById(`${type}-next`)?.addEventListener('click', () => {
+            if (type === 'available' && currentAvailablePage < totalPages) {
+                currentAvailablePage++;
+                renderAvailableFormations();
+            } else if (type === 'myformations' && currentMyFormationsPage < totalPages) {
+                currentMyFormationsPage++;
+                renderMyFormations();
+            }
+        });
+        
+        container.querySelectorAll(`.pagination-btn[data-type="${type}"]`).forEach(btn => {
+            btn.addEventListener('click', () => {
+                const page = parseInt(btn.getAttribute('data-page'));
+                
+                if (type === 'available') {
+                    currentAvailablePage = page;
+                    renderAvailableFormations();
+                } else {
+                    currentMyFormationsPage = page;
+                    renderMyFormations();
+                }
+            });
+        });
+    }
+
+    // Obtenir le texte du statut
+    function getStatutText(statut) {
+        switch(statut) {
+            case 'en_attente': return 'En attente';
+            case 'valide': return 'Validé';
+            case 'en_cours': return 'En cours';
+            case 'termine': return 'Terminé';
+            default: return statut;
+        }
+    }
+
+    // Fonctions pour les actions (simulées)
+    function editFormation(id) {
+        alert(`Édition de la formation #${id} (simulation)`);
+    }
+    
+    function deleteFormation(id) {
+        if (confirm(`Voulez-vous vraiment supprimer la formation #${id} ?`)) {
+            alert(`Formation #${id} supprimée (simulation)`);
+        }
+    }
+    
+    function viewFormation(id) {
+        alert(`Voir détails de la formation #${id} (simulation)`);
+    }
+    
+    function enrollInFormation(id) {
+        if (confirm(`Voulez-vous vous inscrire à cette formation ?`)) {
+            alert(`Inscription réussie à la formation #${id} (simulation)`);
+        }
+    }
+    
+    function continueFormation(id) {
+        alert(`Continuer la formation #${id} (simulation)`);
+    }
+    
+    function viewMyFormation(id) {
+        alert(`Voir mes détails de la formation #${id} (simulation)`);
+    }
+    
+    function abandonFormation(id) {
+        if (confirm(`Voulez-vous vraiment abandonner cette formation ?`)) {
+            alert(`Formation #${id} abandonnée (simulation)`);
+        }
+    }
+    
+    function openAddFormationModal() {
+        alert(`Ouverture du modal d'ajout de formation (simulation)`);
+    }
+</script>
+{%  endblock script %}
+
+</body>
+</html>
