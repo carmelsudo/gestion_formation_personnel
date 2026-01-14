@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajout de Formation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 25px 30px;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        header p {
+            opacity: 0.85;
+            font-size: 15px;
+        }
+        
+        .form-container {
+            padding: 30px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+        
+        .form-group {
+            flex: 1 1 300px;
+            padding: 0 15px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group-full {
+            flex-basis: 100%;
+        }
+        
+        .icon-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .icon-group i {
+            font-size: 24px;
+            color: #3498db;
+            margin-right: 15px;
+        }
+        
+        .icon-group p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+        
+        label.required:after {
+            content: " *";
+            color: #e74c3c;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            z-index: 1;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: white;
+        }
+        
+        input[type="date"] {
+            position: relative;
+        }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.6;
+            cursor: pointer;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            padding-left: 15px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .duration-display {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #2c3e50;
+            display: none;
+        }
+        
+        .duration-display i {
+            margin-right: 8px;
+            color: #3498db;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #e1e8ed;
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #27ae60, #219653);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .btn-reset {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #e1e8ed;
+        }
+        
+        .btn-reset:hover {
+            background-color: #e9ecef;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .date-inputs {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .date-inputs .form-group {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .date-inputs {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-graduation-cap"></i> Ajout d'une Formation</h1>
+            <p>Veuillez remplir tous les champs requis pour planifier une nouvelle formation</p>
+        </header>
+        
+        <div class="form-container">
+            <div class="success-message" id="successMessage">
+                <i class="fas fa-check-circle"></i>
+                <span>La formation a été ajoutée avec succès !</span>
+            </div>
+            
+            <div class="icon-group">
+                <i class="fas fa-info-circle"></i>
+                <p>Planifiez une nouvelle formation pour vos employés. Les champs marqués d'un astérisque (*) sont obligatoires.</p>
+            </div>
+<form method="post" enctype="multipart/form-data" id="formationForm" action="{% if not object %}{% url 'formation_create' %}{% else %}{% url 'formation_update' object.id %}{% endif %}">
+    {% csrf_token %}
+    
+    <div class="form-row">
+        <div class="form-group form-group-full">
+            <label for="{{ form.titre.id_for_label }}" class="required">Nom de la formation</label>
+            <div class="input-with-icon">
+                <i class="fas fa-book"></i>
+                {{ form.titre }}
+            </div>
+            {% if form.titre.errors %}
+                <div class="error-message" style="display: block;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ form.titre.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group form-group-full">
+            <label for="{{ form.auteur.id_for_label }}" class="required">Nom de la formation</label>
+            <div class="input-with-icon">
+                <i class="fas fa-book"></i>
+                {{ form.auteur }}
+            </div>
+            {% if form.auteur.errors %}
+                <div class="error-message" style="display: block;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ form.auteur.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group form-group-full">
+            <label for="{{ form.img_path.id_for_label }}" class="required">Nom de la formation</label>
+            <div class="input-with-icon">
+                <i class="fas fa-book"></i>
+                {{ form.img_path }}
+            </div>
+            {% if form.img_path.errors %}
+                <div class="error-message" style="display: block;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ form.img_path.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="form-row date-inputs">
+        <div class="form-group">
+            <label for="{{ form.date_debut.id_for_label }}" class="required">Date de début</label>
+            <div class="input-with-icon">
+                <i class="fas fa-calendar-alt"></i>
+                {{ form.date_debut }}
+            </div>
+            {% if form.date_debut.errors %}
+                <div class="error-message" style="display: block;">
+                    <span>{{ form.date_debut.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.date_fin.id_for_label }}" class="required">Date de fin</label>
+            <div class="input-with-icon">
+                <i class="fas fa-calendar-check"></i>
+                {{ form.date_fin }}
+            </div>
+            {% if form.date_fin.errors %}
+                <div class="error-message" style="display: block;">
+                    <span>{{ form.date_fin.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="duration-display" id="durationDisplay">
+        <i class="fas fa-clock"></i>
+        <span id="durationText"></span>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label for="{{ form.service_cible.id_for_label }}" class="required">Service ciblé</label>
+            <div class="input-with-icon">
+                <i class="fas fa-bullseye"></i>
+                {{ form.cible_service }}
+            </div>
+            {% if form.service_cible.errors %}
+                <div class="error-message" style="display: block;">
+                    <span>{{ form.service_cible.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.type.id_for_label }}">Type de formation</label>
+            <div class="input-with-icon">
+                <i class="fas fa-tags"></i>
+                {{ form.type }}
+            </div>
+        </div>
+         <div class="form-group">
+            <label for="{{ form.statut.id_for_label }}">Type de formation</label>
+            <div class="input-with-icon">
+                <i class="fas fa-tags"></i>
+                {{ form.statut }}
+            </div>
+        </div>
+        
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group form-group-full">
+            <label for="{{ form.objectifs.id_for_label }}" class="required">Objectif de la formation</label>
+            {{ form.objectifs }}
+            {% if form.objectifs.errors %}
+                <div class="error-message" style="display: block;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ form.objectifs.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    
+    
+    
+    <div class="form-actions">
+        <button type="button" class="btn btn-reset" id="resetBtn">
+            <i class="fas fa-redo"></i> Réinitialiser
+        </button>
+        <button type="submit" class="btn btn-submit">
+            <i class="fas fa-plus-circle"></i> 
+            {% if object %}Mettre à jour{% else %}Planifier la formation{% endif %}
+        </button>
+    </div>
+</form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Références aux éléments du DOM
+            const form = document.getElementById('formationForm');
+            const resetBtn = document.getElementById('resetBtn');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Références aux champs de formulaire
+            const nameInput = document.getElementById('formationName');
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const targetServiceSelect = document.getElementById('targetService');
+            const objectiveInput = document.getElementById('formationObjective');
+            const descriptionInput = document.getElementById('formationDescription');
+            const formationTypeSelect = document.getElementById('formationType');
+            
+            // Références aux messages d'erreur
+            const nameError = document.getElementById('nameError');
+            const startDateError = document.getElementById('startDateError');
+            const endDateError = document.getElementById('endDateError');
+            const serviceError = document.getElementById('serviceError');
+            const objectiveError = document.getElementById('objectiveError');
+            
+            // Référence à l'affichage de durée
+            const durationDisplay = document.getElementById('durationDisplay');
+            const durationText = document.getElementById('durationText');
+            
+            // Définir la date minimale (aujourd'hui) pour les dates
+            const today = new Date().toISOString().split('T')[0];
+            startDateInput.min = today;
+            endDateInput.min = today;
+            
+            // Mettre à jour la date minimale de fin quand la date de début change
+            startDateInput.addEventListener('change', function() {
+                endDateInput.min = this.value;
+                calculateDuration();
+            });
+            
+            endDateInput.addEventListener('change', calculateDuration);
+            
+            // Fonction pour calculer la durée
+            function calculateDuration() {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+                
+                if (startDateInput.value && endDateInput.value && startDate <= endDate) {
+                    const diffTime = Math.abs(endDate - startDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    
+                    if (diffDays === 1) {
+                        durationText.textContent = `Durée : 1 jour`;
+                    } else {
+                        durationText.textContent = `Durée : ${diffDays} jours`;
+                    }
+                    
+                    durationDisplay.style.display = 'block';
+                } else {
+                    durationDisplay.style.display = 'none';
+                }
+            }
+            
+            // Validation du formulaire à la soumission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                let isValid = true;
+                
+                // Validation du nom
+                if (nameInput.value.trim().length === 0) {
+                    showError(nameError, 'Le nom de la formation est requis');
+                    isValid = false;
+                } else if (nameInput.value.trim().length < 5) {
+                    showError(nameError, 'Le nom doit contenir au moins 5 caractères');
+                    isValid = false;
+                } else {
+                    hideError(nameError);
+                }
+                
+                // Validation de la date de début
+                if (!startDateInput.value) {
+                    showError(startDateError, 'La date de début est requise');
+                    isValid = false;
+                } else {
+                    hideError(startDateError);
+                }
+                
+                // Validation de la date de fin
+                if (!endDateInput.value) {
+                    showError(endDateError, 'La date de fin est requise');
+                    isValid = false;
+                } else if (startDateInput.value && new Date(endDateInput.value) < new Date(startDateInput.value)) {
+                    showError(endDateError, 'La date de fin doit être postérieure à la date de début');
+                    isValid = false;
+                } else {
+                    hideError(endDateError);
+                }
+                
+                // Validation du service cible
+                if (!targetServiceSelect.value) {
+                    showError(serviceError, 'Veuillez sélectionner un service cible');
+                    isValid = false;
+                } else {
+                    hideError(serviceError);
+                }
+                
+                // Validation de l'objectif
+                if (objectiveInput.value.trim().length === 0) {
+                    showError(objectiveError, 'L\'objectif de la formation est requis');
+                    isValid = false;
+                } else if (objectiveInput.value.trim().length < 20) {
+                    showError(objectiveError, 'L\'objectif doit contenir au moins 20 caractères');
+                    isValid = false;
+                } else {
+                    hideError(objectiveError);
+                }
+                
+                // Si le formulaire est valide
+                if (isValid) {
+                    // Récupération des données du formulaire
+                    const formationData = {
+                        name: nameInput.value.trim(),
+                        startDate: startDateInput.value,
+                        endDate: endDateInput.value,
+                        targetService: targetServiceSelect.value,
+                        targetServiceName: targetServiceSelect.options[targetServiceSelect.selectedIndex].text,
+                        formationType: formationTypeSelect.value,
+                        objective: objectiveInput.value.trim(),
+                        description: descriptionInput.value.trim()
+                    };
+                    
+                    // Calcul de la durée
+                    const startDate = new Date(formationData.startDate);
+                    const endDate = new Date(formationData.endDate);
+                    const diffTime = Math.abs(endDate - startDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    
+                    // Simulation de l'envoi des données
+                    console.log('Données de la formation:');
+                    console.log('Nom:', formationData.name);
+                    console.log('Dates:', formationData.startDate + ' au ' + formationData.endDate);
+                    console.log('Durée:', diffDays + ' jour(s)');
+                    console.log('Service cible:', formationData.targetServiceName);
+                    console.log('Type:', formationData.formationType || 'Non spécifié');
+                    console.log('Objectif:', formationData.objective);
+                    console.log('Description:', formationData.description || 'Aucune description');
+                    
+                    // Afficher le message de succès
+                    successMessage.style.display = 'flex';
+                    successMessage.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        <span>La formation "<strong>${formationData.name}</strong>" a été planifiée du ${formatDate(formationData.startDate)} au ${formatDate(formationData.endDate)} pour le service ${formationData.targetServiceName} !</span>
+                    `;
+                    
+                    // Réinitialiser le formulaire après 4 secondes
+                    setTimeout(function() {
+                        successMessage.style.display = 'none';
+                        resetForm();
+                    }, 4000);
+                }
+            });
+            
+            // Réinitialisation du formulaire
+            resetBtn.addEventListener('click', resetForm);
+            
+            // Fonction pour réinitialiser le formulaire
+            function resetForm() {
+                form.reset();
+                
+                // Réinitialiser les dates min
+                startDateInput.min = today;
+                endDateInput.min = today;
+                
+                // Masquer l'affichage de durée
+                durationDisplay.style.display = 'none';
+                
+                // Réinitialiser les messages d'erreur
+                hideError(nameError);
+                hideError(startDateError);
+                hideError(endDateError);
+                hideError(serviceError);
+                hideError(objectiveError);
+            }
+            
+            // Fonction pour formater une date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            }
+            
+            // Fonctions pour afficher/masquer les erreurs
+            function showError(errorElement, message) {
+                errorElement.querySelector('span').textContent = message;
+                errorElement.style.display = 'flex';
+                
+                // Ajouter une animation pour attirer l'attention
+                const inputElement = errorElement.parentElement.querySelector('input, select, textarea');
+                if (inputElement) {
+                    inputElement.style.borderColor = '#e74c3c';
+                    inputElement.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+                }
+            }
+            
+            function hideError(errorElement) {
+                errorElement.style.display = 'none';
+                
+                // Réinitialiser le style du champ
+                const inputElement = errorElement.parentElement.querySelector('input, select, textarea');
+                if (inputElement) {
+                    inputElement.style.borderColor = '';
+                    inputElement.style.boxShadow = '';
+                }
+            }
+            
+            // Validation en temps réel
+            nameInput.addEventListener('input', function() {
+                if (this.value.trim().length >= 5) {
+                    hideError(nameError);
+                }
+            });
+            
+            startDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    hideError(startDateError);
+                    if (endDateInput.value && new Date(endDateInput.value) >= new Date(this.value)) {
+                        hideError(endDateError);
+                    }
+                }
+            });
+            
+            endDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    if (startDateInput.value && new Date(this.value) >= new Date(startDateInput.value)) {
+                        hideError(endDateError);
+                    }
+                }
+            });
+            
+            targetServiceSelect.addEventListener('change', function() {
+                if (this.value) {
+                    hideError(serviceError);
+                }
+            });
+            
+            objectiveInput.addEventListener('input', function() {
+                if (this.value.trim().length >= 20) {
+                    hideError(objectiveError);
+                }
+            });
+            
+            // Afficher un aperçu dans la console quand le service change
+            targetServiceSelect.addEventListener('change', function() {
+                if (this.value) {
+                    console.log(`Service cible sélectionné: ${this.options[this.selectedIndex].text}`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

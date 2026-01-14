@@ -23,6 +23,9 @@ urlpatterns = [
    path('' , home , name='home' ),
     path('inscription/', register, name='inscription'),
     path('connexion/', connexion_view, name='login'),
-    path('deconnexion/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('deconnexion/',Logout, name='logout'),
+    path('subordonnné/', Subordonne, name='subordonnes'),
+    path('subordonnés-view/<int:pk>/', subordonné_view, name='subordonnes_view'),
+    path('myadmin/', dashbord_admin, name='dashbord_admin'),
 
 ]

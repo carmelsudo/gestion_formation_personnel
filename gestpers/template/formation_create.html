@@ -1,142 +1,204 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <form method="post" enctype="multipart/form-data" action="{% url 'create_demande' %}" class="formation-form">
-    {% csrf_token %}
+            
+{% extends 'index.html' %}
+{%  block maincontent %}
 
-    <h2>🎓 Créer une formation</h2>
+    <style>
+      .formation-form {
+            max-width: 600px;
+            margin: auto;
+            /* Utilisation de la couleur de carte du thème */
+            background: var(--bg-secondary); 
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-speed) ease;
+        }
 
-    <div class="grid">
-        <div>
-            <label>Titre *</label>
-            <input type="text" name="titre" required placeholder="Introduction au Machine Learning">
-        </div>
+        h2 {
+            text-align: center;
+            color: var(--text-primary);
+            margin-bottom: 32px;
+            font-size: 24px;
+            font-weight: 700;
+        }
 
-        <div>
-            <label>Auteur *</label>
-            <input type="text" name="auteur" required placeholder="Dr. Sarah Chen">
-        </div>
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-        <div>
-            <label>Date début</label>
-            <input type="date" name="debut">
-        </div>
+        label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
 
-        <div>
-            <label>Date fin</label>
-            <input type="date" name="fin">
-        </div>
+        /* Inputs, Textarea et Select adaptés au thème */
+        input.form_input,
+        textarea.form_input,
+        select.form_input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            /* S'adapte au fond sombre ou clair */
+            background-color: var(--bg-primary); 
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        input.form_input:focus,
+        textarea.form_input:focus,
+        select.form_input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Zone d'upload de fichier */
+        .file-upload-wrapper {
+            position: relative;
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            background-color: var(--bg-tertiary);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: var(--accent-primary);
+            background-color: var(--bg-secondary);
+        }
+
+        .file-upload-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .file-upload-text b {
+            color: var(--accent-primary);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Boutons */
+        .btn.submit {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        .btn.submit:hover {
+            background-color: var(--accent-secondary);
+        }
+
+        .btn.cancel {
+            background-color: transparent;
+            color: var(--text-secondary);
+        }
+
+        .btn.cancel:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .date-grid{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .date-grid label{
+            display: block;
+            font-weight: 500;
+        }
+    </style>
+    <div class="content-wrapper">
+                <!--suprimer et ajouter mon contenu-->
+                <form method="post" enctype="multipart/form-data" action="{% url 'create_demande' %}" class="formation-form">
+                    <h2 style="text-align: center;">🎓 Demande de  formation</h2>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Titre de la formation <span>*</span></label>
+                        <input type="text" name="titre" required placeholder="ex: Devenir Expert en UX Design" class="form_input">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Auteur <span>*</span></label>
+                        <input type="text" name="auteur" required placeholder="Nom du formateur" class="form_input">
+                    </div>
+
+                    <div class="date-grid">
+                        <div>
+                            <label>Date de début</label>
+                            <input type="date" name="debut" class="form_input">
+                        </div>
+                        <div>
+                            <label>Date de fin</label>
+                            <input type="date" name="fin" class="form_input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Type de formation <span>*</span></label>
+                        <select name="type" required class="form_input">
+                            <option value="presentiel">📍 Présentiel</option>
+                            <option value="en_ligne">💻 Distanciel</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Objectifs pédagogiques <span>*</span></label>
+                        <textarea name="objectifs" required placeholder="Qu'est-ce que les apprenants vont accomplir ?" class="form_input"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image de couverture</label>
+                        <div class="file-upload-wrapper form_input dropFile"  >
+                            <div class="file-upload-text  " >
+                                <span style="font-size: 24px; display: block; margin-bottom: 8px;" >📁</span>
+                                <b>Cliquez pour uploader</b> ou glissez un fichier ici<br>
+                                <small>(PNG, JPG jusqu'à 5Mo)</small>
+                            </div>
+                            <input type="file" name="img_path" accept="image/*" id="file_input" hidden>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="reset" class="btn cancel">Annuler</button>
+                        <button type="submit" class="btn submit">Enregistrer la formation</button>
+                    </div>
+                </form>
     </div>
 
-    <label>Type de formation *</label>
-    <div class="radio-group">
-        <label><input type="radio" name="type" value="presentiel" checked> Présentiel</label>
-        <label><input type="radio" name="type" value="distanciel"> Distanciel</label>
-    </div>
+  
+    
+{%  endblock maincontent %}
 
-    <label>Objectifs *</label>
-    <textarea name="objectifs" required placeholder="Compétences acquises..."></textarea>
+ {%  block script  %}
+<script>
+    const dropFile = document.querySelector('.file-upload-wrapper');
+        dropFile.addEventListener('click', (e) => {
+           document.getElementById('file_input').click();
+        });
+</script>
+    {%  endblock script  %}
 
-    <label>Image</label>
-    <input type="file" name="img_path" accept="image/*">
+       
+    
 
-          <div class="actions">
-        <button type="reset" class="btn cancel">Annuler</button>
-        <button type="submit" class="btn submit">Créer</button>
-    </div>
-</form>
-<style>
-    .formation-form {
-    max-width: 700px;
-    margin: auto;
-    padding: 30px;
-    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-    border-radius: 16px;
-    font-family: sans-serif;
-    box-shadow: 0 10px 25px rgba(0,0,0,.1);
-}
+   
 
-.formation-form h2 {
-    text-align: center;
-    color: #0369a1;
-    margin-bottom: 20px;
-}
 
-label {
-    font-weight: 600;
-    margin-top: 15px;
-    display: block;
-}
-
-input, textarea, select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #bae6fd;
-    margin-top: 5px;
-}
-
-input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: #0284c7;
-    box-shadow: 0 0 0 2px #bae6fd;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-}
-
-textarea {
-    min-height: 100px;
-}
-
-.radio-group {
-    display: flex;
-    gap: 15px;
-    margin-top: 8px;
-}
-
-.radio-group label {
-    background: #e0f2fe;
-    padding: 8px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-}
-
-.actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 25px;
-}
-
-.btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.btn.submit {
-    background: #0284c7;
-    color: white;
-}
-
-.btn.submit:hover {
-    background: #0369a1;
-}
-
-.btn.cancel {
-    background: #e5e7eb;
-}
-
-</style>
-</body>
-</html>
+ 

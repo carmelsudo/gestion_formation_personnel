@@ -23,6 +23,14 @@ urlpatterns = [
    path('' , get_all_formations , name='formations' ),
    path('demandes' , get_all_demandes , name='demandes' ),
    path('demandes/create' , create_demande , name='create_demande' ),
-    
+   path('demandes/details/<int:id>' , get_one_formations , name='formation_details' ),
+   path('demandes/valider/<int:pk>' , valider , name='formation_valider' ),
+   path('demandes/rejeter/<int:pk>' , rejeter , name='formation_rejeter' ),
+   path('demandes/create/new/<int:pk>' , nouvel_version_demande , name='nouvel_version_demande' ),
+  
+    path('admin/formations/nouveau/', FormationCreateView.as_view(), name='formation_create'),
+    path('admin/formations/<int:pk>/modifier/', FormationUpdateView.as_view(), name='formation_update'),
+    path('admin/formations/<int:pk>/supprimer/', FormationDeleteView.as_view(), name='formation_delete'),
+   
 
 ]

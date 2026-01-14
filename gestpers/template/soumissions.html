@@ -6,8 +6,8 @@
     
            <div class="content-wrapper">
     <div class="content-header">
-        <h1 class="content-title">Gestion des Demande Formations</h1>
-        <p class="content-subtitle">Consultez et gérez toutes les demande formations de votre plateforme</p>
+        <h1 class="content-title">Gestion des demande de formations</h1>
+        <p class="content-subtitle">Consultez et gérez toutes les formations de votre plateforme</p>
     </div>
     
     <!-- Section basculable -->
@@ -16,11 +16,11 @@
             <div class="toggle-buttons">
                 <button class="Toggle-btn active" id="available-toggle">
                     <i class="fas fa-book-open"></i>
-                    <span>demande de Formations </span>
+                    <span>Demande en attente de validation </span>
                 </button>
                 <button class="Toggle-btn" id="myformations-toggle">
                     <i class="fas fa-user-graduate"></i>
-                    <span>Mes demandes Formations</span>
+                    <span>Mes Demandes de formations</span>
                 </button>
             </div>
             
@@ -30,18 +30,11 @@
                     <label for="statut-filter">Statut:</label>
                     <select id="statut-filter" class="filter-select">
                         <option value="all">Tous les statuts</option>
-                        <option value="en_attente">En attente</option>
-                        <option value="valide">Validé</option>
-                        <option value="valide">rejeter</option>
+                        <option value="en_cours">En cours</option>
+                        <option value="termine">Terminé</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label for="service-filter">Service:</label>
-                    <select id="service-filter" class="filter-select">
-                        <option value="all">Tous les services</option>
-                        <!-- Les options seront générées dynamiquement -->
-                    </select>
-                </div>
+               
                 <button class="btn btn-secondary" id="reset-filters">
                     <i class="fas fa-redo"></i>
                     Réinitialiser
@@ -52,18 +45,20 @@
         <!-- Contenu des Formations Disponibles -->
         <div class="toggle-content active" id="available-content">
             <div class="content-actions">
-                <button class="btn btn-primary" id="add-formation">
+                <a href="{% url 'create_demande'%}" class="btn btn-primary" id="add-formation">
                     <i class="fas fa-plus"></i>
-                    Ajouter une formation
-                </button>
+                    Demander une formation {{user.groupe }}
+                </a>
                 <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="search-input" id="search-available" placeholder="Rechercher une formation...">
                 </div>
             </div>
-            
+              <div class="table-container"></div>
+             {% if user.groupe != "employe" %}
+                    
             <!-- Tableau des Formations Disponibles -->
-            <div class="table-container">
+          
                 <div class="table-responsive">
                     <table class="formation-table" id="available-table">
                         <thead>
@@ -71,8 +66,7 @@
                                 <th data-sort="id">ID <i class="fas fa-sort"></i></th>
                                 <th data-sort="titre">Titre <i class="fas fa-sort"></i></th>
                                 <th data-sort="auteur">Auteur <i class="fas fa-sort"></i></th>
-                                <th data-sort="service">Service cible <i class="fas fa-sort"></i></th>
-                                <th data-sort="user">Utilisateur cible <i class="fas fa-sort"></i></th>
+                                <th data-sort="service"> Cible <i class="fas fa-sort"></i></th>
                                 <th data-sort="statut">Statut <i class="fas fa-sort"></i></th>
                                 <th>Actions</th>
                             </tr>
@@ -82,12 +76,14 @@
                         </tbody>
                     </table>
                 </div>
+                        {% endif%}
                 
                 <!-- Pagination -->
                 <div class="pagination" id="available-pagination">
                     <!-- La pagination sera générée dynamiquement -->
                 </div>
             </div>
+
         </div>
         
         <!-- Contenu des Mes Formations -->
@@ -105,13 +101,11 @@
                     <table class="formation-table" id="myformations-table">
                         <thead>
                             <tr>
-                                <th data-sort="id">ID <i class="fas fa-sort"></i></th>
+                                <th data-sort="id">N° <i class="fas fa-sort"></i></th>
                                 <th data-sort="titre">Titre <i class="fas fa-sort"></i></th>
                                 <th data-sort="auteur">Auteur <i class="fas fa-sort"></i></th>
                                 <th data-sort="statut">Mon statut <i class="fas fa-sort"></i></th>
-                                <th data-sort="progress">Progression <i class="fas fa-sort"></i></th>
-                                <th data-sort="date_inscription">Date d'inscription <i class="fas fa-sort"></i></th>
-                                <th>Actions</th>
+                                <th data-sort="date_inscription">Date de debut <i class="fas fa-sort"></i></th>
                             </tr>
                         </thead>
                         <tbody id="myformations-body">
@@ -128,6 +122,7 @@
         </div>
     </div>
 </div>
+
 
 <style>
     /* Styles pour la section basculable */
@@ -390,86 +385,38 @@
 <script>
     // Données fictives pour les formations
     const formationsData = [
+        {% for f in demandes  %}
         { 
-            id: 1, 
-            titre: "Introduction au Machine Learning", 
-            auteur: "Dr. Sarah Chen", 
-            cible_service: "Data Science", 
-            cible_user: null, 
-            cible: "service",
-            statut: "valide",
-            objectifs: "Comprendre les bases du machine learning...",
-            img_path: "/media/formations/ml-intro.jpg",
-            user_create: 1
+            id: {{f.id}}, 
+            titre: "{{f.titre}}", 
+            auteur: "{{f.auteur}}", 
+            cible_service: "{% if f.cible_service  %}{{f.cible_service}}{%else%}{{f.cible_user}}{%endif%}", 
+            cible_user: "{% if f.cible_user  %}{{f.cible_user}}{%else%}{{f.cible_service}}{%endif%}", 
+            cible: "{% if f.cible  %}{{f.cible}}{%else%}Néant{%endif%}",
+            statut: "{{f.get_statut}}",
+            objectifs: "{{f.objectifs}}",
+            img_path: "{{f.img_path.url}}",
+            user_create: "{{f.user_create}}"
         },
-        { 
-            id: 2, 
-            titre: "Gestion de Projet Agile", 
-            auteur: "Pierre Martin", 
-            cible_service: "Management", 
-            cible_user: null, 
-            cible: "service",
-            statut: "en_cours",
-            objectifs: "Maîtriser les méthodologies agiles...",
-            img_path: "/media/formations/agile.jpg",
-            user_create: 2
-        },
-        
-        { 
-            id: 4, 
-            titre: "Développement React", 
-            auteur: "Marie Laurent", 
-            cible_service: "Développement", 
-            cible_user: null, 
-            cible: "service",
-            statut: "termine",
-            objectifs: "Créer des applications React modernes...",
-            img_path: "/media/formations/react.jpg",
-            user_create: 4
-        },
-        { 
-            id: 5, 
-            titre: "Communication Efficace", 
-            auteur: "Sophie Bernard", 
-            cible_service: null, 
-            cible_user: "Thomas Dupont", 
-            cible: "user",
-            statut: "valide",
-            objectifs: "Améliorer ses compétences en communication...",
-            img_path: "/media/formations/communication.jpg",
-            user_create: 5
-        },
+        {%endfor %}
+
+       
     ];
 
-    // Données fictives pour mes formations
+    // Données fictives pour mes formations subordonnee 
     const myFormationsData = [
-        { 
-            id: 1, 
-            titre: "Introduction au Machine Learning", 
-            auteur: "Dr. Sarah Chen", 
-            my_statut: "en_cours",
-            progression: 65,
-            date_inscription: "2023-10-15",
-            derniere_activite: "2023-11-20"
-        },
-        { 
+       
+         {% for f in mydemandes  %}
+         { 
             id: 2, 
-            titre: "Gestion de Projet Agile", 
-            auteur: "Pierre Martin", 
-            my_statut: "termine",
-            progression: 100,
-            date_inscription: "2023-09-10",
-            derniere_activite: "2023-11-05"
+            titre: "{{f.titre}}", 
+            auteur: "{{f.auteur}}", 
+            my_statut: "{{f.get_statut}}",
+            date_inscription: "{{f.debut}}",
         },
-        { 
-            id: 4, 
-            titre: "Développement React", 
-            auteur: "Marie Laurent", 
-            my_statut: "valide",
-            progression: 0,
-            date_inscription: "2023-11-01",
-            derniere_activite: "2023-11-01"
-        },
+        {%endfor %}
+
+      
     ];
 
     // Éléments DOM
@@ -490,6 +437,7 @@
     let currentView = 'available';
     let currentAvailablePage = 1;
     let currentMyFormationsPage = 1;
+    let itemsPerPage = 5;
     let filteredFormations = [...formationsData];
     let filteredMyFormations = [...myFormationsData];
     let currentSort = { column: 'id', direction: 'asc' };
@@ -516,7 +464,7 @@
         // Recherche dans les formations disponibles
         searchAvailable.addEventListener('input', filterAvailableFormations);
         
-        // Recherche dans mes formations
+        // Recherche dans mes formations paginationContainer
         searchMyformations.addEventListener('input', filterMyFormations);
         
         // Filtres
@@ -559,6 +507,9 @@
 
     // Générer les options de service
     function generateServiceOptions() {
+        // Ajouter un filtre de service uniquement s'il existe
+        if (!serviceFilter) return;
+        
         // Extraire les services uniques des formations
         const services = [...new Set(formationsData
             .filter(f => f.cible_service)
@@ -581,7 +532,10 @@
         const formationsToShow = filteredFormations.slice(startIndex, endIndex);
         
         // Effacer le contenu actuel
+        if(availableBody){
         availableBody.innerHTML = '';
+
+        }
         
         // Ajouter les lignes du tableau
         formationsToShow.forEach(formation => {
@@ -589,7 +543,7 @@
             
             // Déterminer la classe CSS pour le statut
             let statutClass = `statut-${formation.statut}`;
-            let statutText = getStatutText(formation.statut);
+            let statutText = getStatutText(formation.statut) == 'disponible' ?  'valide': getStatutText(formation.statut);
             
             // Déterminer la cible
             let cibleText = formation.cible_service || formation.cible_user || 'Non spécifié';
@@ -607,27 +561,33 @@
                     </div>
                 </td>
                 <td>${formation.auteur}</td>
-                <td>${formation.cible_service || '-'}</td>
-                <td>${formation.cible_user || '-'}</td>
+                <td>${formation.cible_service || formation.cible_user || '-'}</td>
                 <td><span class="statut-badge ${statutClass}">${statutText}</span></td>
                 <td>
-                    <div class="action-buttons" style="flex-wrap:wrap">
-                        <button style = " font-size: 0.6em" class="action-btn edit" data-id="${formation.id}" title="Éditer">
+                    <div class="action-buttons">
+                       <a href="demandes/valider/${formation.id}" style = " font-size: 0.6em" class="action-btn edit" data-id="${formation.id}" title="Éditer">
                             validé
-                        </button>
-                        <button style = " font-size: 0.6em" class="action-btn delete" data-id="${formation.id}" title="Supprimer">
+                        </a>
+                        <a href="demandes/valider/${formation.id}" style = " font-size: 0.6em" class="action-btn delete" data-id="${formation.id}" title="Supprimer">
                             rejeté
-                        </button>
+                        </a>
                      
-                           <button style = " font-size: 0.6em" class="action-btn enroll" data-id="${formation.id}" title="S'inscrire">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        
+                          
+                        <a href= 'demandes/details/${formation.id}' style = "text-decoration:none"  class="action-btn view" data-id="${formation.id}" title="Voir détails">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        ${formation.statut === 'valide' ? 
+                            `<a style = "text-decoration:none" class="action-btn enroll" data-id="${formation.id}" title="S'inscrire">
+                                <i class="fas fa-user-plus"></i>
+                            </a>` : ''
+                        }
                     </div>
                 </td>
             `;
             
-            availableBody.appendChild(row);
+            if(availableBody){
+                availableBody.appendChild(row);
+            }
         });
         
         // Ajouter les événements aux boutons d'action
@@ -668,28 +628,9 @@
                 </td>
                 <td>${formation.auteur}</td>
                 <td><span class="statut-badge ${statutClass}">${statutText}</span></td>
-                <td>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: ${formation.progression}%"></div>
-                    </div>
-                    <div class="progress-text">${formation.progression}%</div>
-                </td>
+               
                 <td>${new Date(formation.date_inscription).toLocaleDateString('fr-FR')}</td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="action-btn continue" data-id="${formation.id}" title="Continuer">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <button class="action-btn view" data-id="${formation.id}" title="Voir détails">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        ${formation.progression < 100 ? 
-                            `<button class="action-btn abandon" data-id="${formation.id}" title="Abandonner">
-                                <i class="fas fa-times"></i>
-                            </button>` : ''
-                        }
-                    </div>
-                </td>
+               
             `;
             
             myformationsBody.appendChild(row);
@@ -802,7 +743,7 @@
     // Appliquer les filtres
     function applyFilters() {
         const statutValue = statutFilter.value;
-        const serviceValue = serviceFilter.value;
+        const serviceValue = serviceFilter && serviceFilter.value ? serviceFilter.value : 'all';
         
         let filtered = [...formationsData];
         

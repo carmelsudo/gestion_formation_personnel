@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<form method="post" enctype="multipart/form-data" action="{% if not object %}{% url 'formation_create' %}{% else %}{% url 'formation_update' object.id %}{% endif %}" class="formation-form">
+    {% csrf_token %}
+
+    <h2>{% if object %}Editer{% else %}🎓 Créer{% endif %} une formation</h2>
+
+    {% if form.errors %}
+        <div class="alert error">
+            Veuillez corriger les erreurs ci-dessous.
+        </div>
+    {% endif %}
+
+    <div class="grid">
+        <div>
+            <label for="{{ form.titre.id_for_label }}">Titre *</label>
+            {{ form.titre }}
+            {{ form.titre.errors }}
+        </div>
+
+        <div>
+            <label for="{{ form.auteur.id_for_label }}">Auteur *</label>
+            {{ form.auteur }}
+            {{ form.auteur.errors }}
+        </div>
+
+        <div>
+            <label for="{{ form.date_debut.id_for_label }}">Date début</label>
+            {{ form.date_debut }}
+        </div>
+
+        <div>
+            <label for="{{ form.date_fin.id_for_label }}">Date fin</label>
+            {{ form.date_fin }}
+        </div>
+    </div>
+
+    <label>Type de formation *</label>
+    <div class="radio-group">
+        {% for radio in form.type_formation %}
+            <label>{{ radio.tag }} {{ radio.choice_label }}</label>
+        {% endfor %}
+    </div>
+
+    <label for="{{ form.objectifs.id_for_label }}">Objectifs *</label>
+    {{ form.objectifs }}
+
+    <label for="{{ form.img_path.id_for_label }}">Image de couverture</label>
+    {{ form.img_path }}
+
+    <div class="actions">
+        <a href="{% url 'formation_list' %}" class="btn cancel">Annuler</a>
+        <button type="submit" class="btn submit">
+            {% if object %}Enregistrer les modifications{% else %}Créer la formation{% endif %}
+        </button>
+    </div>
+</form>
+<style>
+    .formation-form {
+    max-width: 700px;
+    margin: auto;
+    padding: 30px;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border-radius: 16px;
+    font-family: sans-serif;
+    box-shadow: 0 10px 25px rgba(0,0,0,.1);
+}
+
+.formation-form h2 {
+    text-align: center;
+    color: #0369a1;
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: 600;
+    margin-top: 15px;
+    display: block;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #bae6fd;
+    margin-top: 5px;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 2px #bae6fd;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+textarea {
+    min-height: 100px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 8px;
+}
+
+.radio-group label {
+    background: #e0f2fe;
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn.submit {
+    background: #0284c7;
+    color: white;
+}
+
+.btn.submit:hover {
+    background: #0369a1;
+}
+
+.btn.cancel {
+    background: #e5e7eb;
+}
+
+</style>
+</body>
+</html>

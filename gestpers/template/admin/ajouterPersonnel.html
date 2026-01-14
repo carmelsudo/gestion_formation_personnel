@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajout de Personnel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px 30px;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        header p {
+            opacity: 0.85;
+            font-size: 15px;
+        }
+        
+        .form-container {
+            padding: 30px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+        
+        .form-group {
+            flex: 1 1 300px;
+            padding: 0 15px;
+            margin-bottom: 25px;
+        }
+        
+        .avatar-group {
+            flex-basis: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .avatar-preview-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .avatar-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid #e1e8ed;
+            object-fit: cover;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: #6c757d;
+            overflow: hidden;
+        }
+        
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-upload-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .avatar-upload-btn:hover {
+            background-color: #3a7bc8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .avatar-input {
+            display: none;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+        
+        label.required:after {
+            content: " *";
+            color: #e74c3c;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: white;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+        
+        .password-strength {
+            height: 5px;
+            margin-top: 8px;
+            border-radius: 3px;
+            background-color: #e1e8ed;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+        
+        .password-match {
+            margin-top: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .password-match.valid {
+            color: #27ae60;
+        }
+        
+        .password-match.invalid {
+            color: #e74c3c;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #e1e8ed;
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #27ae60, #219653);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .btn-reset {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #e1e8ed;
+        }
+        
+        .btn-reset:hover {
+            background-color: #e9ecef;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-user-plus"></i> Ajout de Personnel</h1>
+            <p>Veuillez remplir tous les champs requis pour ajouter un nouveau membre du personnel</p>
+        </header>
+        
+        <div class="form-container">
+           
+            
+            <form id="personnelForm">
+                <div class="avatar-group">
+                    <div class="avatar-preview-container">
+                        <div class="avatar-preview" id="avatarPreview">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    <input type="file" id="avatarInput" class="avatar-input" accept="image/*">
+                    <button type="button" class="avatar-upload-btn" id="uploadBtn">
+                        <i class="fas fa-cloud-upload-alt"></i> Choisir une photo de profil
+                    </button>
+                    <div class="error-message" id="avatarError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Veuillez sélectionner une image valide (JPEG, PNG, GIF) de moins de 2MB</span>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lastName" class="required">Nom</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="lastName" placeholder="Entrez le nom">
+                        </div>
+                        <div class="error-message" id="lastNameError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Le nom est requis et doit contenir au moins 2 caractères</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="required">Email</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" placeholder="exemple@entreprise.com">
+                        </div>
+                        <div class="error-message" id="emailError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Veuillez entrer une adresse email valide</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password" class="required">Mot de passe</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" placeholder="Créez un mot de passe sécurisé">
+                        </div>
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                        </div>
+                        <div class="error-message" id="passwordError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Le mot de passe doit contenir au moins 8 caractères</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="passwordConfirm" class="required">Confirmation du mot de passe</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="passwordConfirm" placeholder="Répétez le mot de passe">
+                        </div>
+                        <div class="password-match" id="passwordMatch">
+                            <i class="fas fa-times"></i>
+                            <span>Les mots de passe ne correspondent pas</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="group" class="required">Groupe</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-users"></i>
+                            <select id="group">
+                                <option value="">Sélectionnez un groupe</option>
+                                <option value="admin">Administrateurs</option>
+                                <option value="manager">Gestionnaires</option>
+                                <option value="hr">Ressources Humaines</option>
+                                <option value="employee">Employés</option>
+                                <option value="contractor">Contractuels</option>
+                            </select>
+                        </div>
+                        <div class="error-message" id="groupError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Veuillez sélectionner un groupe</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-reset" id="resetBtn">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                    <button type="submit" class="btn btn-submit">
+                        <i class="fas fa-user-plus"></i> Ajouter le personnel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Références aux éléments du DOM
+            const form = document.getElementById('personnelForm');
+            const avatarInput = document.getElementById('avatarInput');
+            const avatarPreview = document.getElementById('avatarPreview');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Références aux champs de formulaire
+            const lastNameInput = document.getElementById('lastName');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const passwordConfirmInput = document.getElementById('passwordConfirm');
+            const groupSelect = document.getElementById('group');
+            
+            // Références aux messages d'erreur
+            const avatarError = document.getElementById('avatarError');
+            const lastNameError = document.getElementById('lastNameError');
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const groupError = document.getElementById('groupError');
+            const passwordMatch = document.getElementById('passwordMatch');
+            const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+            
+            // Variables
+            let avatarFile = null;
+            
+            // Événement pour le bouton d'upload d'avatar
+            uploadBtn.addEventListener('click', function() {
+                avatarInput.click();
+            });
+            
+            // Prévisualisation de l'avatar
+            avatarInput.addEventListener('change', function() {
+                const file = this.files[0];
+                
+                if (file) {
+                    // Validation du fichier
+                    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+                    
+                    if (!validTypes.includes(file.type)) {
+                        showError(avatarError, 'Format de fichier non supporté. Veuillez choisir une image JPEG, PNG ou GIF.');
+                        avatarFile = null;
+                        return;
+                    }
+                    
+                    if (file.size > maxSize) {
+                        showError(avatarError, 'L\'image est trop volumineuse. Taille maximale: 2MB.');
+                        avatarFile = null;
+                        return;
+                    }
+                    
+                    // Afficher la prévisualisation
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        avatarPreview.innerHTML = '';
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        avatarPreview.appendChild(img);
+                    }
+                    
+                    reader.readAsDataURL(file);
+                    avatarFile = file;
+                    hideError(avatarError);
+                }
+            });
+            
+            // Validation du mot de passe en temps réel
+            passwordInput.addEventListener('input', function() {
+                validatePassword();
+                checkPasswordMatch();
+            });
+            
+            // Vérification de la correspondance des mots de passe
+            passwordConfirmInput.addEventListener('input', checkPasswordMatch);
+            
+            // Validation du mot de passe
+            function validatePassword() {
+                const password = passwordInput.value;
+                let strength = 0;
+                
+                if (password.length >= 8) {
+                    strength += 25;
+                    hideError(passwordError);
+                } else {
+                    showError(passwordError, 'Le mot de passe doit contenir au moins 8 caractères');
+                }
+                
+                // Vérifier la complexité
+                if (/[A-Z]/.test(password)) strength += 25;
+                if (/[0-9]/.test(password)) strength += 25;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+                
+                // Mettre à jour la barre de force
+                passwordStrengthBar.style.width = strength + '%';
+                
+                // Changer la couleur en fonction de la force
+                if (strength < 50) {
+                    passwordStrengthBar.style.backgroundColor = '#e74c3c';
+                } else if (strength < 75) {
+                    passwordStrengthBar.style.backgroundColor = '#f39c12';
+                } else {
+                    passwordStrengthBar.style.backgroundColor = '#27ae60';
+                }
+            }
+            
+            // Vérifier si les mots de passe correspondent
+            function checkPasswordMatch() {
+                const password = passwordInput.value;
+                const confirm = passwordConfirmInput.value;
+                
+                if (confirm.length === 0) {
+                    passwordMatch.style.display = 'none';
+                    return;
+                }
+                
+                if (password === confirm && password.length >= 8) {
+                    passwordMatch.innerHTML = '<i class="fas fa-check"></i><span>Les mots de passe correspondent</span>';
+                    passwordMatch.className = 'password-match valid';
+                    passwordMatch.style.display = 'flex';
+                } else {
+                    passwordMatch.innerHTML = '<i class="fas fa-times"></i><span>Les mots de passe ne correspondent pas</span>';
+                    passwordMatch.className = 'password-match invalid';
+                    passwordMatch.style.display = 'flex';
+                }
+            }
+            
+            // Validation du formulaire à la soumission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                let isValid = true;
+                
+                // Validation du nom
+                if (lastNameInput.value.trim().length < 2) {
+                    showError(lastNameError, 'Le nom est requis et doit contenir au moins 2 caractères');
+                    isValid = false;
+                } else {
+                    hideError(lastNameError);
+                }
+                
+                // Validation de l'email
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailInput.value.trim())) {
+                    showError(emailError, 'Veuillez entrer une adresse email valide');
+                    isValid = false;
+                } else {
+                    hideError(emailError);
+                }
+                
+                // Validation du mot de passe
+                if (passwordInput.value.length < 8) {
+                    showError(passwordError, 'Le mot de passe doit contenir au moins 8 caractères');
+                    isValid = false;
+                } else {
+                    hideError(passwordError);
+                }
+                
+                // Vérification de la correspondance des mots de passe
+                if (passwordInput.value !== passwordConfirmInput.value) {
+                    passwordMatch.style.display = 'flex';
+                    isValid = false;
+                }
+                
+                // Validation du groupe
+                if (!groupSelect.value) {
+                    showError(groupError, 'Veuillez sélectionner un groupe');
+                    isValid = false;
+                } else {
+                    hideError(groupError);
+                }
+                
+                // Si le formulaire est valide
+                if (isValid) {
+                    // Simulation de l'envoi des données
+                    console.log('Données du formulaire:');
+                    console.log('Nom:', lastNameInput.value);
+                    console.log('Email:', emailInput.value);
+                    console.log('Mot de passe:', passwordInput.value);
+                    console.log('Groupe:', groupSelect.value);
+                    console.log('Avatar:', avatarFile ? avatarFile.name : 'Aucun avatar sélectionné');
+                    
+                    // Afficher le message de succès
+                    successMessage.style.display = 'flex';
+                    
+                    // Réinitialiser le formulaire après 3 secondes
+                    setTimeout(function() {
+                        successMessage.style.display = 'none';
+                        resetForm();
+                    }, 3000);
+                }
+            });
+            
+            // Réinitialisation du formulaire
+            resetBtn.addEventListener('click', resetForm);
+            
+            // Fonction pour réinitialiser le formulaire
+            function resetForm() {
+                form.reset();
+                avatarPreview.innerHTML = '<i class="fas fa-user"></i>';
+                avatarFile = null;
+                
+                // Réinitialiser les messages d'erreur
+                hideError(avatarError);
+                hideError(lastNameError);
+                hideError(emailError);
+                hideError(passwordError);
+                hideError(groupError);
+                passwordMatch.style.display = 'none';
+                
+                // Réinitialiser la barre de force du mot de passe
+                passwordStrengthBar.style.width = '0';
+            }
+            
+            // Fonctions pour afficher/masquer les erreurs
+            function showError(errorElement, message) {
+                errorElement.querySelector('span').textContent = message;
+                errorElement.style.display = 'flex';
+            }
+            
+            function hideError(errorElement) {
+                errorElement.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

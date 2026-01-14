@@ -1,6 +1,7 @@
 from django.db import models
 from Userprofile.models import User
 # Create your models here.
+from django.utils import timezone
 from Service.models import  Service
 # Définition des énumérations
 class CibleChoices(models.TextChoices):
@@ -11,9 +12,8 @@ class TypeChoices(models.TextChoices):
        ENLIGNE = 'en_ligne', 'EN LIGNE'
 class StatutChoices(models.TextChoices):
         EN_ATTENTE = 'en_attente', 'EN_ATTENTE'
-        VALIDE = 'valide', 'VALIDE'
-        EN_COURS = 'en_cours', 'EN_COURS'
-        TERMINE = 'terminé', 'TERMINE'
+        REJETE = 'rejete', 'REJETE'
+        DISPONIBLE = 'disponible', 'DISPONIBLE'
 class myStatutChoices(models.TextChoices):
         VALIDE = 'valide', 'VALIDE'
         REJETE = 'rejete', 'REJETE'
@@ -44,8 +44,26 @@ class Formation(models.Model):
         )
     def __str__(self):
         return self.titre
-    
+    @property
+    def get_statut(self):
+        # On récupère l'heure actuelle avec le fuseau horaire du projet
+        now = timezone.now() .date()
+        if(self.cible == 'service') :
+             return  'disponible' 
+        # 1. Si le statut est déjà figé (finalisé), on le retourne
+        if self.statut  in [ 'en_attente', 'rejete']:
+            return self.statut
 
+        # 2. Logique temporelle (on compare des objets date/datetime)
+        if self.fin and self.fin < now:
+            return 'termine'
+        
+        if self.debut and self.debut > now:
+            return 'disponible' # (Correction orthographe : disponible)
+        
+        # 3. Si on est entre début et fin
+        return 'en_cours'
+                     
 
 
 class FormationStatus(models.Model):

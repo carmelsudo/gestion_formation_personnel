@@ -1,39 +1,8 @@
+
 {% extends 'index.html' %}
 {%  block maincontent %}
 
-           
-            <div class="content-wrapper">
-                <div class="content-header">
-                    <h1 class="content-title">Gestion des subordonnées</h1>
-                    <p class="content-subtitle">Consultez et gérez tous vos subordonnée de votre plateforme</p>
-                </div>
-                
-                <!-- Tableau des utilisateurs -->
-                <div class="table-container">
-                    <div class="table-responsive">
-                        <table class="user-table" id="user-table">
-                            <thead>
-                                <tr>
-                                    <th data-sort="id">ID <i class="fas fa-sort"></i></th>
-                                    <th data-sort="name">Nom <i class="fas fa-sort"></i></th>
-                                    <th data-sort="email">Email <i class="fas fa-sort"></i></th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                <!-- Les données seront générées dynamiquement -->
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <!-- Pagination -->
-                    <div class="pagination" id="pagination">
-                        <!-- La pagination sera générée dynamiquement -->
-                    </div>
-                </div>
-            </div>
-              {%  endblock maincontent %}
-
-
-  
-  
+<h1>
+    Bienvenue {{user.username}}
+</h1>
+{%  endblock maincontent %}

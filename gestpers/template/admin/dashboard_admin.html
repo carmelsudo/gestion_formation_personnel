@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Professionnel - Administration Formations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- Styles du tableau et de l'interface utilisateur --- */
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+
+        .status-completed {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+
+        .status-draft { /* Utilisé pour NON_ACTIF */
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+
+        .badge-type {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .btn-view, .btn-edit, .btn-delete {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin: 0 3px;
+            color: #6c757d;
+            font-size: 1em;
+        }
+
+        .btn-view:hover { color: #17a2b8; }
+        .btn-edit:hover { color: #ffc107; }
+        .btn-delete:hover { color: #dc3545; }
+
+        /* Variables CSS pour le thème */
+        :root {
+            /* Palette claire par défaut */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-tertiary: #e2e8f0;
+            --text-primary: #334155;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #1d4ed8;
+            --dark-primary: #1e293b;
+            --dark-secondary: #0f172a;
+            --white: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --sidebar-width: 250px;
+            --sidebar-collapsed: 70px;
+            --header-height: 70px;
+            --transition-speed: 0.3s;
+            --border-radius: 8px;
+        }
+
+        /* Thème sombre */
+        .dark-theme {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #e2e8f0;
+            --text-tertiary: #94a3b8;
+            --accent-primary: #60a5fa;
+            --accent-secondary: #3b82f6;
+            --dark-primary: #f1f5f9;
+            --dark-secondary: #e2e8f0;
+            --border-color: #334155;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Reset et styles de base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color var(--transition-speed) ease;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Layout principal */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Barre latérale */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: var(--header-height);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent-primary);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .logo span {
+            display: none;
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-primary);
+            transform: rotate(180deg);
+        }
+
+        .sidebar.collapsed .toggle-btn {
+            transform: rotate(180deg);
+        }
+
+        .sidebar.collapsed .toggle-btn:hover {
+            transform: rotate(0deg);
+        }
+
+        .nav-menu {
+            flex-grow: 1;
+            padding: 20px 0;
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: var(--accent-primary);
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 14px 0;
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .sidebar-footer span {
+            display: none;
+        }
+
+        /* Contenu principal */
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: var(--sidebar-collapsed);
+        }
+
+        /* Header supérieur */
+        .top-header {
+            height: var(--header-height);
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-primary);
+            transform: rotate(30deg);
+        }
+
+        .notification-btn {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .notification-btn:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background-color: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-primary);
+            transition: transform 0.3s ease;
+        }
+
+        .avatar-img:hover {
+            transform: scale(1.1);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            width: 200px;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--bg-secondary);
+            transform: rotate(45deg);
+            border-left: 1px solid var(--border-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 4px 0;
+        }
+
+        /* Contenu principal */
+        .content-wrapper {
+            padding: 24px;
+        }
+
+        .content-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .content-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .btn-add {
+            padding: 10px 20px;
+            background-color: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add:hover {
+            background-color: var(--accent-secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Onglets de navigation CRUD */
+        .crud-tabs {
+            display: flex;
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .crud-tab {
+            flex: 1;
+            min-width: 150px;
+            padding: 16px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .crud-tab:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .crud-tab.active {
+            color: var(--accent-primary);
+            border-bottom-color: var(--accent-primary);
+            background-color: var(--bg-tertiary);
+        }
+
+        /* Tableaux de gestion */
+        .table-container {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .table-container:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Masquer par défaut les containers d'onglets non actifs */
+        .table-container.hidden {
+            display: none !important;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .data-table thead {
+            background-color: var(--bg-tertiary);
+        }
+
+        .data-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            user-select: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .data-table th:hover {
+            background-color: var(--border-color);
+        }
+
+        .data-table th i {
+            margin-left: 8px;
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+        }
+
+        .data-table th:hover i {
+            opacity: 1;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .dark-theme .data-table tbody tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .data-table td {
+            padding: 16px;
+            color: var(--text-secondary);
+            vertical-align: middle;
+        }
+
+        /* Amélioration pour .button2 */
+        .button2 {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: flex-end;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .button2 .btn-add {
+            padding: 10px 16px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            box-shadow: 0 6px 18px rgba(59, 130, 246, 0.15);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.12s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .button2 .btn-add i {
+            margin-right: 6px;
+            opacity: 0.95;
+        }
+
+        .button2 .btn-add:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(59, 130, 246, 0.18);
+            opacity: 0.98;
+        }
+
+        .button2 .btn-add:active {
+            transform: translateY(0);
+            box-shadow: none;
+            opacity: 0.95;
+        }
+
+        @media (max-width: 768px) {
+            .button2 {
+                justify-content: center;
+            }
+        }
+        /* --- Badges de Statut (Basé sur vos models.py) --- */
+/* Statut: ACTIF */
+.status-active {
+    background-color: #dcfce7; /* Vert clair */
+    color: #166534; /* Vert foncé */
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Statut: NON_ACTIF (Utilisé pour 'status-draft') */
+.status-draft {
+    background-color: #fee2e2; /* Rouge clair */
+    color: #991b1b; /* Rouge foncé */
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* --- Badges de Type (Service/Division/Labo...) --- */
+.badge-type {
+    background-color: #e0e7ff; /* Bleu indigo clair */
+    color: #3730a3; /* Indigo foncé */
+    padding: 3px 8px;
+    border-radius: 6px; /* Bordure un peu plus carrée pour différencier du statut */
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    display: inline-block;
+}
+
+/* --- Styles spécifiques pour la colonne Personnel (Avatar + Nom) --- */
+.user-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-tertiary);
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.user-role {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* --- Ajustements Tableau --- */
+/* Met en gras les codes services (ex: SRV-TECH) */
+.code-cell {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+/* Parent null ou vide */
+.text-muted {
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+/* --- STYLE DES CARTES STATISTIQUES --- */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-primary);
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+        
+        /* Couleur de l'icône dans le titre */
+        .card-title i {
+            color: var(--accent-primary);
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .card-trend {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        /* Indicateurs de tendance (couleurs spécifiques) */
+        .card-trend.positive {
+            color: #16a34a; /* Vert */
+        }
+        
+        .card-trend.negative {
+            color: #dc2626; /* Rouge */
+        }
+        
+        .card-trend i {
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>UnivAdmin</span>
+                </div>
+                <button class="toggle-btn" id="sidebar-toggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-tachometer-alt nav-icon"></i>
+                        <span>Tableau de bord</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'home' %}" class="nav-link">
+                        <i class="fas fa-users nav-icon"></i>
+                        <span>Accueil</span>
+                    </a>
+                </li>
+              
+            </ul>
+            
+            <div class="sidebar-footer">
+                <span>© 2023 UniversitéAdmin</span>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-input" placeholder="Rechercher...">
+                </div>
+                
+                  <div class="header-actions">
+                    <button class="theme-toggle" id="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    
+                    <button class="notification-btn" id="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </button>
+                    
+                    <div class="user-avatar" id="user-avatar">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80" alt="Avatar" class="avatar-img">
+                        
+                        <div class="dropdown-menu" id="user-dropdown">
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>Mon profil</span>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>Paramètres</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Déconnexion</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="content-header">
+                    <div>
+                        <h1 class="content-title">Administration des Formations</h1>
+                        <p class="content-subtitle">Gestion complète du parcours de formation du personnel universitaire</p>
+                    </div>
+                    <button class="btn-add" id="btn-add-item">
+                        <i class="fas fa-plus"></i>
+                        Ajouter un élément
+                    </button>
+                </div>
+
+                <div class="dashboard-cards">
+                    <div class="dashboard-card">
+                        <div class="card-title">
+                            <i class="fas fa-user-graduate"></i>
+                            Personnels formés
+                        </div>
+                        <div class="card-value">{{serviceGerants.count}}</div>
+                       
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-title">
+                            <i class="fas fa-book-open"></i>
+                            Formations actives
+                        </div>
+                        <div class="card-value">{{formations.count}}</div>
+                    
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <div class="card-title">
+                            <i class="fas fa-chart-line"></i>
+                            Nombre de Services
+                        </div>
+                        <div class="card-value">{{services.count}}</div>
+                        
+                    </div>
+                </div>
+
+                <div class="button2">
+                    <a  href="" style="text-decoration:none;" class="btn-add" id="btn-add-formation-action">
+                        <i class="fas fa-plus"></i>
+                        Ajouter une formation
+                    </a>
+
+                    <a  href="{% url 'service_create' %}" style="text-decoration:none;" class="btn-add" id="btn-add-service">
+                        <i class="fas fa-plus"></i>
+                        Ajouter un service
+                    </a>
+
+                    <a  href="" style="text-decoration:none;" class="btn-add" id="btn-add-personnel">
+                        <i class="fas fa-plus"></i>
+                        Ajouter un personnel
+                    </a>
+                </div>
+
+                <div class="crud-tabs" id="crud-tabs">
+                    <div class="crud-tab active" data-tab="formations">Formations</div>
+                    <div class="crud-tab" data-tab="personnel">Personnel</div>
+                    <div class="crud-tab" data-tab="services">Services</div>
+                </div>
+
+                <div class="table-container" id="formations-tab">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-sort="title">Titre de la formation <i class="fas fa-sort"></i></th>
+                                    <th data-sort="category">Auteur <i class="fas fa-sort"></i></th>
+                                    <th data-sort="duration">statut <i class="fas fa-sort"></i></th>
+                                    <th data-sort="status"> Date de debut <i class="fas fa-sort"></i></th>
+                                    <th data-sort="participants">type <i class="fas fa-sort"></i></th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for formation in formations %}
+                                <tr>
+                                    <td>{{formation.titre}}</td>
+                                    <td>{{formation.auteur}}</td>
+                                    <td>{{formation.statut}}</td>
+                                    <td><span class="status-active">{{formation.debut}}</span></td>
+                                    <td>{{formation.type}}</td>
+                                    <td>
+                                        <button class="btn-view" title="Voir"><i class="fas fa-eye"></i></button>
+                                        <button class="btn-edit" title="Modifier"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-delete" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                {% endfor  %}
+
+                            
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-container hidden" id="personnel-tab">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Groupe</th>
+                                    <th>Service</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                           <tbody>
+                               {% for sg in serviceGerants %}
+                                <tr>
+                                    <td>{{sg.user.username}}</td>
+                                    <td>{{sg.user.email}}</td>
+                                    <td>{{sg.user.groupe}}</td>
+                                    <td>>{{sg.service}}</td>
+                                    <td>
+                                        <button class="btn-view" title="Voir"><i class="fas fa-eye"></i></button>
+                                        <button class="btn-edit" title="Modifier"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-delete" title="Supprimer"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                {% endfor  %}
+
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-container hidden" id="services-tab">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Titre du Service</th>
+                                    <th>Type</th>
+                                    <th>Parent</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sg in services%}
+                                <tr>
+                                    <td>>{{sg.code}}</td>
+                                    <td>{{sg.titre}}</td>
+                                    <td>{{sg.type}}</td>
+                                    <td>{{sg.parent}}</td>
+                                    <td>>{{sg.statut}}</td>
+                                    <td>
+                                        <a style="text-decoration: none;" href="{% url 'service_update' sg.id%}" class="btn-edit" title="Modifier"><i class="fas fa-edit"></i></a>
+                                        <a style="text-decoration: none;" href="{% url 'service_delete' sg.id%}" class="btn-delete" title="Supprimer"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor  %}
+                              
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        (function(){
+            const tabs = document.querySelectorAll('.crud-tab');
+            const containers = document.querySelectorAll('.table-container');
+
+            function showTab(name){
+                // bascule active sur onglets
+                tabs.forEach(t=> t.classList.toggle('active', t.dataset.tab===name));
+                // afficher le container correspondant
+                containers.forEach(c=>{
+                    if(c.id === name + '-tab') c.classList.remove('hidden');
+                    else c.classList.add('hidden');
+                });
+            }
+
+            tabs.forEach(t=> t.addEventListener('click', ()=> showTab(t.dataset.tab)));
+
+            // initialiser: garder le premier onglet actif s'il existe
+            const active = document.querySelector('.crud-tab.active');
+            if(active) showTab(active.dataset.tab);
+        })();
+    </script>
+</body>
+</html>

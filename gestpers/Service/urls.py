@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path ,include
-
+from . import views
 urlpatterns = [
     
-   
+   path('services/nouveau/', views.service_create, name='service_create'),
+    path('services/modifier/<int:pk>/', views.service_update, name='service_update'),
+    path('services/supprimer/<int:pk>/', views.service_delete, name='service_delete'),
 
 ]

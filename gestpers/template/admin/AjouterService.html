@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajout de Service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Variables CSS pour une meilleure maintenabilité */
+        :root {
+            --primary-color: #4a90e2;
+            --primary-dark: #2c3e50;
+            --primary-light: #4a6491;
+            --success-color: #27ae60;
+            --success-light: #d4edda;
+            --error-color: #e74c3c;
+            --error-light: #fff5f5;
+            --warning-color: #f39c12;
+            --text-dark: #2c3e50;
+            --text-medium: #666;
+            --text-light: #7f8c8d;
+            --border-color: #e1e8ed;
+            --background-light: #f5f7fa;
+            --shadow-light: 0 5px 20px rgba(0, 0, 0, 0.08);
+            --transition-speed: 0.3s;
+            --border-radius: 12px;
+            --border-radius-small: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            color: white;
+            padding: 25px 30px;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        header p {
+            opacity: 0.85;
+            font-size: 15px;
+        }
+        
+        /* Form container */
+        .form-container {
+            padding: 30px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px;
+        }
+        
+        .form-group {
+            flex: 1 1 300px;
+            padding: 0 15px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group-full {
+            flex-basis: 100%;
+        }
+        
+        /* Information group */
+        .icon-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius-small);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .icon-group i {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .icon-group p {
+            color: var(--text-medium);
+            font-size: 14px;
+        }
+        
+        /* Labels */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 15px;
+        }
+        
+        label.required::after {
+            content: " *";
+            color: var(--error-color);
+        }
+        
+        /* Input fields */
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-small);
+            font-size: 16px;
+            transition: all var(--transition-speed);
+            background-color: white;
+            color: var(--text-dark);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            padding-left: 15px;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+        
+        /* Radio buttons */
+        .radio-group {
+            display: flex;
+            gap: 25px;
+            margin-top: 8px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .radio-option input[type="radio"] {
+            width: auto;
+            margin-right: 5px;
+        }
+        
+        .radio-option label {
+            margin-bottom: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        /* Type tags */
+        .type-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        
+        .type-tag {
+            display: flex;
+            align-items: center;
+            padding: 12px 18px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            background-color: white;
+            user-select: none;
+            flex: 1;
+            min-width: 150px;
+            justify-content: center;
+        }
+        
+        .type-tag:hover {
+            border-color: #bdc3c7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .type-tag.selected {
+            border-color: var(--primary-color);
+            background-color: #f0f7ff;
+            color: var(--primary-color);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+        }
+        
+        .type-tag i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .type-tag span {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        /* Status indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background-color: var(--success-light);
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Form actions */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            border-radius: var(--border-radius-small);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #2ecc71, var(--success-color));
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background: linear-gradient(135deg, var(--success-color), #219653);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+        
+        .btn-reset {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid var(--border-color);
+        }
+        
+        .btn-reset:hover {
+            background-color: #e9ecef;
+        }
+        
+        /* Messages */
+        .error-message {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: var(--success-light);
+            color: #155724;
+            padding: 15px;
+            border-radius: var(--border-radius-small);
+            margin-bottom: 25px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .type-tags-container {
+                flex-direction: column;
+            }
+            
+            .type-tag {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            header {
+                padding: 20px;
+            }
+            
+            header h1 {
+                font-size: 24px;
+            }
+            
+            .form-container {
+                padding: 15px;
+            }
+            
+            .form-group {
+                flex: 1 1 100%;
+            }
+            
+            .type-tag {
+                padding: 10px 15px;
+            }
+            
+            .type-tag i {
+                font-size: 16px;
+                margin-right: 8px;
+            }
+            
+            .type-tag span {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            {% for error in errors%}
+                {{error}}
+            {% endfor %}
+        </div>
+        <header>
+            <h1><i class="fas fa-plus-circle"></i> Ajout d'un Service</h1>
+            <p>Veuillez remplir tous les champs requis pour ajouter un nouveau service</p>
+        </header>
+        
+        <div class="form-container">
+            <div class="success-message" id="successMessage">
+                <i class="fas fa-check-circle"></i>
+                <span>Le service a été ajouté avec succès !</span>
+            </div>
+            
+            <div class="icon-group">
+                <i class="fas fa-info-circle"></i>
+                <p>Un service représente une division ou un département de votre organisation. Les champs marqués d'un astérisque (*) sont obligatoires.</p>
+            </div>
+            
+            <form id="serviceForm" method="post" action=" {% if not object %}{% url 'service_create' %}{%else%}{% url 'service_update' object.id %}{% endif %}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="serviceTitle" class="required">Titre du service</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-heading"></i>
+                            <input name="titre" type="text" id="serviceTitle" placeholder="Ex: Ressources Humaines" required>
+                        </div> 
+                        <div class="error-message" id="titleError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Le titre du service est requis</span>
+                        </div>
+                    </div>
+            {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="serviceCode" class="required">Code du service</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-code"></i>
+                            <input name="code" type="text" id="serviceCode" placeholder="Ex: RH, IT, FIN" required>
+                        </div>
+                        <div class="error-message" id="codeError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Le code du service est requis</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group form-group-full">
+                        <label for="serviceType" class="required">Type de service</label>
+                        <div class="type-tags-container" id="typeTagsContainer">
+                            <div class="type-tag" data-value="service">
+                                <i class="fas fa-cogs"></i>
+                                <span>Service</span>
+                            </div>
+                            <div class="type-tag" data-value="atelier">
+                                <i class="fas fa-tools"></i>
+                                <span>Atelier</span>
+                            </div>
+                            <div class="type-tag" data-value="labo_pedagogique">
+                                <i class="fas fa-flask"></i>
+                                <span>Laboratoire pédagogique</span>
+                            </div>
+                               <div class="type-tag" data-value="labo_recherche">
+                                <i class="fas fa-flask"></i>
+                                <span>Laboratoire de recherche</span>
+                            </div>
+                            <div class="type-tag" data-value="division">
+                                <i class="fas fa-sitemap"></i>
+                                <span>Division</span>
+                            </div>
+                            <div class="type-tag" data-value="departement">
+                                <i class="fas fa-building"></i>
+                                <span>Département</span>
+                            </div>
+                        </div>
+                        <input type="hidden" name="type" id="serviceType" value="" required>
+                        <div class="error-message" id="typeError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Veuillez sélectionner un type de service</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="parentService">Service parent (optionnel)</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-sitemap"></i>
+                            <select name="parent" id="parentService">
+                                <option value="">Aucun</option>
+                                
+                                {% for s in parents %}
+                                <option value="{{s.id}}">{{s}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                 
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">Statut du service</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="statusActive" name="status" value="active" checked>
+                                <label for="statusActive">
+                                    <span class="status-indicator status-active">
+                                        <i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i>
+                                        Actif
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="statusInactive" name="status" value="inactive">
+                                <label for="statusInactive">
+                                    <span class="status-indicator status-inactive">
+                                        <i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i>
+                                        Inactif
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-reset" id="resetBtn">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                    <button type="submit" class="btn btn-submit">
+                        <i class="fas fa-plus-circle"></i> Créer le service
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuration
+            const CONFIG = {
+                typePrefixes: {
+                    'service': 'SVC',
+                    'atelier': 'ATL',
+                    'laboratoire': 'LAB',
+                    'division': 'DIV',
+                    'departement': 'DEP'
+                },
+                typeDisplayNames: {
+                    'service': 'Service',
+                    'atelier': 'Atelier',
+                    'laboratoire': 'Laboratoire',
+                    'division': 'Division',
+                    'departement': 'Département'
+                }
+            };
+            
+            // Éléments DOM
+            const elements = {
+                form: document.getElementById('serviceForm'),
+                resetBtn: document.getElementById('resetBtn'),
+                successMessage: document.getElementById('successMessage'),
+                titleInput: document.getElementById('serviceTitle'),
+                codeInput: document.getElementById('serviceCode'),
+                typeInput: document.getElementById('serviceType'),
+                parentServiceSelect: document.getElementById('parentService'),
+                serviceManagerSelect: document.getElementById('serviceManager'),
+                descriptionInput: document.getElementById('serviceDescription'),
+                titleError: document.getElementById('titleError'),
+                codeError: document.getElementById('codeError'),
+                typeError: document.getElementById('typeError'),
+                typeTags: document.querySelectorAll('.type-tag'),
+                typeTagsContainer: document.getElementById('typeTagsContainer')
+            };
+            
+            // État de l'application
+            const state = {
+                selectedType: '',
+                isSubmitting: false
+            };
+            
+            // Initialisation
+            function init() {
+                setupEventListeners();
+                preSelectDefaultType();
+            }
+            
+            // Configuration des événements
+            function setupEventListeners() {
+                elements.form.addEventListener('submit', handleSubmit);
+                elements.resetBtn.addEventListener('click', handleReset);
+                elements.titleInput.addEventListener('input', () => validateField(elements.titleInput, elements.titleError, validateTitle));
+                elements.titleInput.addEventListener('blur', handleTitleBlur);
+                elements.codeInput.addEventListener('input', () => validateField(elements.codeInput, elements.codeError, validateCode));
+                elements.codeInput.addEventListener('blur', handleCodeBlur);
+                
+                // Gestion des tags de type
+                elements.typeTags.forEach(tag => {
+                    tag.addEventListener('click', () => handleTypeSelect(tag));
+                });
+            }
+            
+            // Pré-sélection d'un type par défaut (optionnel)
+            function preSelectDefaultType() {
+                if (elements.typeTags.length > 0) {
+                    handleTypeSelect(elements.typeTags[0]);
+                }
+            }
+            
+            // Gestion de la soumission du formulaire
+             function handleSubmit(event) {
+               return ;
+            }
+            
+            // Récupération des données du formulaire
+            function getFormData() {
+                return {
+                    title: elements.titleInput.value.trim(),
+                    code: elements.codeInput.value.trim().toUpperCase(),
+                    type: state.selectedType,
+                    parentService: elements.parentServiceSelect.value,
+                    serviceManager: elements.serviceManagerSelect.value,
+                    status: document.querySelector('input[name="status"]:checked').value,
+                    description: elements.descriptionInput.value.trim()
+                };
+            }
+            
+            // Simulation d'envoi de données
+            function submitFormData(data) {
+                console.log('Données soumises:', data);
+                return new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            // Gestion de la réinitialisation
+            function handleReset() {
+                resetForm();
+            }
+            
+            // Gestion de la sélection du type
+            function handleTypeSelect(tag) {
+                // Désélectionner tous les tags
+                elements.typeTags.forEach(t => t.classList.remove('selected'));
+                
+                // Sélectionner le tag cliqué
+                tag.classList.add('selected');
+                
+                // Mettre à jour l'état
+                state.selectedType = tag.getAttribute('data-value');
+                elements.typeInput.value = state.selectedType;
+                
+                // Valider
+                validateTypeSelection();
+                
+                // Ajuster le code si nécessaire
+                adjustCodeByType();
+            }
+            
+            // Gestion du blur du titre
+            function handleTitleBlur() {
+                adjustCodeByType();
+            }
+            
+            // Gestion du blur du code
+            function handleCodeBlur() {
+                elements.codeInput.value = elements.codeInput.value.toUpperCase();
+            }
+            
+            // Ajustement automatique du code
+            function adjustCodeByType() {
+                if (!elements.codeInput.value.trim() && 
+                    state.selectedType && 
+                    elements.titleInput.value.trim() && 
+                    CONFIG.typePrefixes[state.selectedType]) {
+                    
+                    const prefix = CONFIG.typePrefixes[state.selectedType];
+                    const titleAbbr = elements.titleInput.value.trim().substring(0, 3).toUpperCase();
+                    elements.codeInput.value = `${prefix}-${titleAbbr}`;
+                    validateField(elements.codeInput, elements.codeError, validateCode);
+                }
+            }
+            
+            // Validation des champs
+            function validateField(input, errorElement, validator) {
+                const isValid = validator(input.value.trim());
+                
+                if (!isValid) {
+                    showError(errorElement, getErrorMessage(input.id));
+                    return false;
+                }
+                
+                hideError(errorElement);
+                return true;
+            }
+            
+            function validateTitle(value) {
+                return value.length >= 3;
+            }
+            
+            function validateCode(value) {
+                return value.length >= 2;
+            }
+            
+            function validateTypeSelection() {
+                const isValid = state.selectedType !== '';
+                
+                if (!isValid) {
+                    showError(elements.typeError, 'Veuillez sélectionner un type de service');
+                } else {
+                    hideError(elements.typeError);
+                }
+                
+                return isValid;
+            }
+            
+            // Messages d'erreur
+            function getErrorMessage(fieldId) {
+                const messages = {
+                    'serviceTitle': 'Le titre doit contenir au moins 3 caractères',
+                    'serviceCode': 'Le code doit contenir au moins 2 caractères'
+                };
+                
+                return messages[fieldId] || 'Ce champ est invalide';
+            }
+            
+            // Affichage de la première erreur
+            function showFirstError() {
+                const errors = [elements.titleError, elements.codeError, elements.typeError];
+                const firstError = errors.find(error => error.style.display !== 'none');
+                
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+            
+            // Affichage des erreurs
+            function showError(errorElement, message) {
+                const span = errorElement.querySelector('span');
+                if (span) span.textContent = message;
+                
+                errorElement.style.display = 'flex';
+                
+                // Style pour le container de type
+                if (errorElement === elements.typeError) {
+                    elements.typeTagsContainer.style.border = '2px solid var(--error-color)';
+                    elements.typeTagsContainer.style.borderRadius = 'var(--border-radius-small)';
+                    elements.typeTagsContainer.style.padding = '8px';
+                    elements.typeTagsContainer.style.backgroundColor = 'var(--error-light)';
+                    elements.typeTagsContainer.style.animation = 'shake 0.5s ease-in-out';
+                }
+            }
+            
+            function hideError(errorElement) {
+                errorElement.style.display = 'none';
+                
+                // Réinitialiser le style du container de type
+                if (errorElement === elements.typeError) {
+                    elements.typeTagsContainer.style.border = 'none';
+                    elements.typeTagsContainer.style.padding = '0';
+                    elements.typeTagsContainer.style.backgroundColor = '';
+                    elements.typeTagsContainer.style.animation = '';
+                }
+            }
+            
+            // Affichage du message de succès
+            function showSuccessMessage(data) {
+                const typeName = CONFIG.typeDisplayNames[data.type] || data.type;
+                
+                elements.successMessage.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <span>Le ${typeName.toLowerCase()} "<strong>${data.title}</strong>" (${data.code}) a été créé avec succès !</span>
+                `;
+                
+                elements.successMessage.style.display = 'flex';
+                elements.successMessage.style.animation = 'fadeIn 0.5s ease-out';
+                
+                setTimeout(() => {
+                    elements.successMessage.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Réinitialisation du formulaire
+            function resetForm() {
+                elements.form.reset();
+                
+                // Réinitialiser le type
+                elements.typeTags.forEach(tag => tag.classList.remove('selected'));
+                state.selectedType = '';
+                elements.typeInput.value = '';
+                
+                // Réinitialiser les messages d'erreur
+                hideError(elements.titleError);
+                hideError(elements.codeError);
+                hideError(elements.typeError);
+                
+                // Pré-sélectionner le type par défaut
+                preSelectDefaultType();
+            }
+            
+            // Initialisation
+            init();
+        });
+    </script>
+</body>
+</html>

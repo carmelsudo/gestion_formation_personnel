@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Professionnel - Administration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Variables CSS pour le thème */
+        :root {
+            /* Palette claire par défaut */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-tertiary: #e2e8f0;
+            --text-primary: #334155;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #1d4ed8;
+            --dark-primary: #1e293b;
+            --dark-secondary: #0f172a;
+            --white: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --sidebar-width: 250px;
+            --sidebar-collapsed: 70px;
+            --header-height: 70px;
+            --transition-speed: 0.3s;
+            --border-radius: 8px;
+        }
+
+        /* Thème sombre */
+        .dark-theme {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #e2e8f0;
+            --text-tertiary: #94a3b8;
+            --accent-primary: #60a5fa;
+            --accent-secondary: #3b82f6;
+            --dark-primary: #f1f5f9;
+            --dark-secondary: #e2e8f0;
+            --border-color: #334155;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Reset et styles de base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color var(--transition-speed) ease;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* zoom: 80%;
+             height: 133.33%;  */
+        }
+
+        /* Layout principal */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Barre latérale */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: var(--header-height);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--accent-primary);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .logo span {
+            display: none;
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-primary);
+            transform: rotate(180deg);
+        }
+
+        .sidebar.collapsed .toggle-btn {
+            transform: rotate(180deg);
+        }
+
+        .sidebar.collapsed .toggle-btn:hover {
+            transform: rotate(0deg);
+        }
+
+        .nav-menu {
+            flex-grow: 1;
+            padding: 20px 0;
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: var(--accent-primary);
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 14px 0;
+        }
+
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .sidebar-footer span {
+            display: none;
+        }
+
+        /* Contenu principal */
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: var(--sidebar-collapsed);
+        }
+
+        /* Header supérieur */
+        .top-header {
+            height: var(--header-height);
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-primary);
+            transform: rotate(30deg);
+        }
+
+        .notification-btn {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .notification-btn:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background-color: #ef4444;
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-primary);
+            transition: transform 0.3s ease;
+        }
+
+        .avatar-img:hover {
+            transform: scale(1.1);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            width: 200px;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--bg-secondary);
+            transform: rotate(45deg);
+            border-left: 1px solid var(--border-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 4px 0;
+        }
+
+        /* Contenu principal */
+        .content-wrapper {
+            padding: 24px;
+        }
+
+        .content-header {
+            margin-bottom: 24px;
+        }
+
+        .content-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .content-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Tableau des utilisateurs */
+        .table-container {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .table-container:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .user-table thead {
+            background-color: var(--bg-tertiary);
+        }
+
+        .user-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            user-select: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .user-table th:hover {
+            background-color: var(--border-color);
+        }
+
+        .user-table th i {
+            margin-left: 8px;
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+        }
+
+        .user-table th:hover i {
+            opacity: 1;
+        }
+
+        .user-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+
+        .user-table tbody tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .dark-theme .user-table tbody tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .user-table tbody tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .user-table td {
+            padding: 16px;
+            color: var(--text-secondary);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+
+        .status-inactive {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: var(--border-radius);
+            font-size: 0.85rem;
+            font-weight: 500;
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .action-btn.edit {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .action-btn.delete {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .action-btn.profile {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background-color: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .pagination-btn.active {
+            background-color: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 500px;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.show .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-secondary);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        /* Indicateur de chargement */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent-primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(0);
+                width: var(--sidebar-collapsed);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar.collapsed + .main-content {
+                margin-left: var(--sidebar-collapsed);
+            }
+
+            .search-container {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-header {
+                padding: 0 16px;
+            }
+
+            .content-wrapper {
+                padding: 16px;
+            }
+
+            .search-container {
+                width: 150px;
+            }
+
+            .header-actions {
+                gap: 12px;
+            }
+
+            .user-table th, .user-table td {
+                padding: 12px 8px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .search-container {
+                display: none;
+            }
+            
+            .top-header {
+                justify-content: flex-end;
+            }
+        }
+    </style>
+    <style>
+      .formation-form {
+            max-width: 600px;
+            margin: auto;
+            /* Utilisation de la couleur de carte du thème */
+            background: var(--bg-secondary); 
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-speed) ease;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--text-primary);
+            margin-bottom: 32px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        /* Inputs, Textarea et Select adaptés au thème */
+        input.form_input,
+        textarea.form_input,
+        select.form_input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            /* S'adapte au fond sombre ou clair */
+            background-color: var(--bg-primary); 
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        input.form_input:focus,
+        textarea.form_input:focus,
+        select.form_input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Zone d'upload de fichier */
+        .file-upload-wrapper {
+            position: relative;
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            background-color: var(--bg-tertiary);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: var(--accent-primary);
+            background-color: var(--bg-secondary);
+        }
+
+        .file-upload-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .file-upload-text b {
+            color: var(--accent-primary);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Boutons */
+        .btn.submit {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        .btn.submit:hover {
+            background-color: var(--accent-secondary);
+        }
+
+        .btn.cancel {
+            background-color: transparent;
+            color: var(--text-secondary);
+        }
+
+        .btn.cancel:hover {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .date-grid{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .date-grid label{
+            display: block;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Barre latérale -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <span></span>
+                </div>
+                <button class="toggle-btn" id="sidebar-toggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{% url 'home' %}" class="nav-link active">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span>Accueil</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'formations' %}" class="nav-link">
+                        <i class="fas fa-users nav-icon"></i>
+                        <span>Formations</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'demandes' %}" class="nav-link">
+                        <i class="fas fa-chart-bar nav-icon"></i>
+                        <span>Soumissions</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog nav-icon"></i>
+                        <span>Mes subordonnée</span>
+                    </a>
+                </li>
+               
+              
+             
+            </ul>
+            
+            <div class="sidebar-footer">
+                <span>© 2023 DashboardPro</span>
+            </div>
+        </aside>
+
+        <!-- Contenu principal -->
+        <main class="main-content">
+            <!-- Header supérieur -->
+            <header class="top-header">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-input" placeholder="Rechercher un utilisateur...">
+                </div>
+                
+                <div class="header-actions">
+                    <button class="theme-toggle" id="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    
+                    <button class="notification-btn" id="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    
+                    <div class="user-avatar" id="user-avatar">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Avatar" class="avatar-img">
+                        
+                        <div class="dropdown-menu" id="user-dropdown">
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>Mon profil</span>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-cog"></i>
+                                <span>Paramètres</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Déconnexion</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Contenu -->           
+            <div class="content-wrapper">
+                <!--suprimer et ajouter mon contenu-->
+                <form method="post" enctype="multipart/form-data" action="{% url 'create_demande' %}" class="formation-form">
+                    <h2 style="text-align: center;">🎓 Créer une formation</h2>
+                    <div class="form-group">
+                        <label>Titre de la formation <span>*</span></label>
+                        <input type="text" name="titre" required placeholder="ex: Devenir Expert en UX Design" class="form_input">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Auteur <span>*</span></label>
+                        <input type="text" name="auteur" required placeholder="Nom du formateur" class="form_input">
+                    </div>
+
+                    <div class="date-grid">
+                        <div>
+                            <label>Date de début</label>
+                            <input type="date" name="debut" class="form_input">
+                        </div>
+                        <div>
+                            <label>Date de fin</label>
+                            <input type="date" name="fin" class="form_input">
+                        </div>10
+                    </div>
+
+                    <div class="form-group date-grid" >
+                        <div >
+                            <label>Type de formation <span>*</span></label>
+                            <select name="type" required class="form_input">
+                                <option value="presentiel">📍 Présentiel</option>
+                                <option value="distanciel">💻 Distanciel</option>
+                                <option value="hybride">🌓 Hybride</option>
+                            </select>
+                        </div>
+                        <!-- choisir un subordonnée -->
+                        <div>
+                            <label>Subordonnée<span>*</span></label>
+                            <select name="subordonne" required class="form_input">
+                                <option value="Jonh Doe">Jonh Doe</option>
+                                <option value="Mark Zuckerberg">Mark Zuckerberg</option>
+                                <option value="Elon Musk">Elon Musk</option>
+                                <option value="Elon Musk">Elon Musk</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Objectifs pédagogiques <span>*</span></label>
+                        <textarea name="objectifs" required placeholder="Qu'est-ce que les apprenants vont accomplir ?" class="form_input"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image de couverture</label>
+                        <div class="file-upload-wrapper form_input"  >
+                            <div class="file-upload-text " >
+                                <span style="font-size: 24px; display: block; margin-bottom: 8px;" >📁</span>
+                                <b>Cliquez pour uploader</b> ou glissez un fichier ici<br>
+                                <small>(PNG, JPG jusqu'à 5Mo)</small>
+                            </div>
+                            <input type="file" name="img_path" accept="image/*" id="file_input" hidden>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="reset" class="btn cancel">Annuler</button>
+                        <button type="submit" class="btn submit">Enregistrer la formation</button>
+                    </div>
+                </form>
+    </div>
+              {%  endblock maincontent %}
+
+        </main>
+    </div>
+
+    <!-- Modal pour les actions -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Modifier l'utilisateur</h3>
+                <button class="modal-close" id="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Le contenu du modal sera injecté dynamiquement -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <!-- Les boutons du modal seront injectés dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicateur de chargement -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        // Données fictives d'utilisateurs
+        const usersData = [
+            { id: 1, name: "Alexandre Martin", email: "alexandre.martin@example.com", status: "active", role: "Administrateur" },
+            { id: 2, name: "Sophie Bernard", email: "sophie.bernard@example.com", status: "active", role: "Modérateur" },
+            { id: 3, name: "Thomas Dubois", email: "thomas.dubois@example.com", status: "inactive", role: "Utilisateur" },
+            { id: 4, name: "Emma Leroy", email: "emma.leroy@example.com", status: "pending", role: "Utilisateur" },
+            { id: 5, name: "Lucas Moreau", email: "lucas.moreau@example.com", status: "active", role: "Éditeur" },
+            { id: 6, name: "Camille Petit", email: "camille.petit@example.com", status: "active", role: "Utilisateur" },
+            { id: 7, name: "Hugo Simon", email: "hugo.simon@example.com", status: "inactive", role: "Utilisateur" },
+            { id: 8, name: "Chloé Laurent", email: "chloe.laurent@example.com", status: "active", role: "Modérateur" },
+            { id: 9, name: "Nathan Roux", email: "nathan.roux@example.com", status: "pending", role: "Utilisateur" },
+            { id: 10, name: "Léa Michel", email: "lea.michel@example.com", status: "active", role: "Utilisateur" },
+            { id: 11, name: "Maxime Fournier", email: "maxime.fournier@example.com", status: "active", role: "Administrateur" },
+            { id: 12, name: "Manon Girard", email: "manon.girard@example.com", status: "inactive", role: "Utilisateur" },
+            { id: 13, name: "Antoine Blanc", email: "antoine.blanc@example.com", status: "active", role: "Éditeur" },
+            { id: 14, name: "Juliette David", email: "juliette.david@example.com", status: "pending", role: "Utilisateur" },
+            { id: 15, name: "Baptiste Lefebvre", email: "baptiste.lefebvre@example.com", status: "active", role: "Utilisateur" }
+        ];
+
+        // Éléments DOM
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const themeToggle = document.getElementById('theme-toggle');
+        const userAvatar = document.getElementById('user-avatar');
+        const userDropdown = document.getElementById('user-dropdown');
+        const searchInput = document.getElementById('search-input');
+        const tableBody = document.getElementById('table-body');
+        const pagination = document.getElementById('pagination');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalClose = document.getElementById('modal-close');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const dropFile = document.querySelector('.file-upload-wrapper');
+        //appuis du champs d'importation de fichier
+        dropFile.addEventListener('click', (e) => {
+           document.getElementById('file_input').click();
+        });
+
+        // Variables globales
+        let currentPage = 1;
+        const itemsPerPage = 8;
+        let filteredUsers = [...usersData];
+        let sortColumn = 'id';
+        let sortDirection = 'asc';
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Charger le thème depuis localStorage
+            loadTheme();
+        });
+
+        // Initialiser les événements
+        function initEvents() {
+            themeToggle.addEventListener('click', toggleTheme);
+            // Toggle sidebar
+             sidebarToggle.addEventListener('click', toggleSidebar);
+            
+            // Toggle dropdown utilisateur
+            userAvatar.addEventListener('click', toggleUserDropdown);
+            
+            // Fermer le dropdown en cliquant ailleurs
+            document.addEventListener('click', closeDropdowns);
+            
+            // Recherche en temps réel
+            searchInput.addEventListener('input', filterTable);
+            
+            // Fermer modal
+            modalClose.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', function(e) {
+                if (e.target === modalOverlay) closeModal();
+            });
+            
+            // Gestion du responsive
+            window.addEventListener('resize', handleResize);
+            
+            // Initialiser l'état responsive
+            handleResize();
+        }
+        console.log("ke")
+         initEvents();
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            
+            // Animation "whaoo" - rotation du bouton
+            const icon = sidebarToggle.querySelector('i');
+            if (sidebar.classList.contains('collapsed')) {
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        }
+        // Toggle theme
+        function toggleTheme() {
+            console.log(localStorage.getItem("theme"));
+            const body = document.body;
+            const isDark = body.classList.contains('dark-theme');
+            const icon = themeToggle.querySelector('i');
+            
+            // Animation "whaoo" - rotation
+            themeToggle.style.transform = 'rotate(180deg)';
+            setTimeout(() => {
+                themeToggle.style.transform = '';
+            }, 300);
+            
+            if (isDark) {
+                body.classList.remove('dark-theme');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-theme');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Charger le thème depuis localStorage
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const icon = themeToggle.querySelector('i');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                document.body.classList.remove('dark-theme');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        // Toggle dropdown utilisateur
+        function toggleUserDropdown(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        }
+
+        // Fermer tous les dropdowns
+        function closeDropdowns(e) {
+            if (!e.target.closest('.user-avatar')) {
+                userDropdown.classList.remove('show');
+            }
+        }
+
+        // Filtrer le tableau
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            if (searchTerm.length === 0) {
+                filteredUsers = [...usersData];
+            } else {
+                filteredUsers = usersData.filter(user => 
+                    user.name.toLowerCase().includes(searchTerm) || 
+                    user.email.toLowerCase().includes(searchTerm) ||
+                    user.role.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            currentPage = 1;
+            renderTable();
+            renderPagination();
+        }
+
+        // Trier le tableau
+        function sortTable(column) {
+            // Si on clique sur la même colonne, inverser le sens de tri
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            
+            // Trier les données
+            filteredUsers.sort((a, b) => {
+                let aValue = a[column];
+                let bValue = b[column];
+                
+                // Pour les colonnes spéciales
+                if (column === 'status') {
+                    const statusOrder = { 'active': 1, 'pending': 2, 'inactive': 3 };
+                    aValue = statusOrder[aValue] || 4;
+                    bValue = statusOrder[bValue] || 4;
+                }
+                
+                if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+                if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+            
+            // Mettre à jour les icônes de tri
+            updateSortIcons();
+            
+            // Re-rendre le tableau
+            renderTable();
+        }
+
+        // Mettre à jour les icônes de tri
+        function updateSortIcons() {
+            const headers = document.querySelectorAll('.user-table th[data-sort]');
+            
+            headers.forEach(header => {
+                const icon = header.querySelector('i');
+                const column = header.getAttribute('data-sort');
+                
+                if (column === sortColumn) {
+                    icon.className = sortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+                } else {
+                    icon.className = 'fas fa-sort';
+                }
+            });
+        }
+
+        // Rendre le tableau
+        function renderTable() {
+            // Calculer les utilisateurs à afficher pour la page actuelle
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const usersToShow = filteredUsers.slice(startIndex, endIndex);
+            
+            // Effacer le contenu actuel
+            tableBody.innerHTML = '';
+            
+            // Ajouter les lignes du tableau
+            usersToShow.forEach(user => {
+                const row = document.createElement('tr');
+                
+                // Déterminer la classe CSS pour le statut
+                let statusClass = '';
+                let statusText = '';
+                
+                switch(user.status) {
+                    case 'active':
+                        statusClass = 'status-active';
+                        statusText = 'Actif';
+                        break;
+                    case 'inactive':
+                        statusClass = 'status-inactive';
+                        statusText = 'Inactif';
+                        break;
+                    case 'pending':
+                        statusClass = 'status-pending';
+                        statusText = 'En attente';
+                        break;
+                }
+                
+                row.innerHTML = `
+                    <td>#${user.id.toString().padStart(3, '0')}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>
+                        <div class="action-buttons">
+                           
+                            <button class="action-btn profile" data-id="${user.id}" title="Voir profil">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Ajouter les événements aux boutons d'action
+            document.querySelectorAll('.action-btn.edit').forEach(btn => {
+                btn.addEventListener('click', () => openEditModal(parseInt(btn.getAttribute('data-id'))));
+            });
+            
+            document.querySelectorAll('.action-btn.delete').forEach(btn => {
+                btn.addEventListener('click', () => openDeleteModal(parseInt(btn.getAttribute('data-id'))));
+            });
+            
+            document.querySelectorAll('.action-btn.profile').forEach(btn => {
+                btn.addEventListener('click', () => openProfileModal(parseInt(btn.getAttribute('data-id'))));
+            });
+            
+            // Ajouter les événements de tri aux en-têtes
+            document.querySelectorAll('.user-table th[data-sort]').forEach(header => {
+                header.addEventListener('click', () => sortTable(header.getAttribute('data-sort')));
+            });
+            
+            // Initialiser les icônes de tri
+            updateSortIcons();
+        }
+
+        // Rendre la pagination
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+            
+            // Si une seule page, ne pas afficher la pagination
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Bouton précédent
+            paginationHTML += `
+                <button class="pagination-btn" id="prev-page" ${currentPage === 1 ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+            
+            // Pages
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    paginationHTML += `
+                        <button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">
+                            ${i}
+                        </button>
+                    `;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    paginationHTML += `<span class="pagination-dots">...</span>`;
+                }
+            }
+            
+            // Bouton suivant
+            paginationHTML += `
+                <button class="pagination-btn" id="next-page" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+            
+            pagination.innerHTML = paginationHTML;
+            
+            // Ajouter les événements
+            document.getElementById('prev-page')?.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                    renderPagination();
+                }
+            });
+            
+            document.getElementById('next-page')?.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                    renderPagination();
+                }
+            });
+            
+            document.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentPage = parseInt(btn.getAttribute('data-page'));
+                    renderTable();
+                    renderPagination();
+                });
+            });
+        }
+
+        // Ouvrir modal d'édition
+        function openEditModal(userId) {
+            const user = usersData.find(u => u.id === userId);
+            if (!user) return;
+            
+            // Animation de chargement
+            showLoading();
+            
+            // Simuler un délai de chargement
+            setTimeout(() => {
+                hideLoading();
+                
+                document.getElementById('modal-title').textContent = `Modifier ${user.name}`;
+                
+                document.getElementById('modal-body').innerHTML = `
+                    <div class="form-group">
+                        <label for="edit-name">Nom complet</label>
+                        <input type="text" id="edit-name" class="search-input" value="${user.name}" style="width: 100%; margin-top: 8px;">
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label for="edit-email">Adresse email</label>
+                        <input type="email" id="edit-email" class="search-input" value="${user.email}" style="width: 100%; margin-top: 8px;">
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label for="edit-role">Rôle</label>
+                        <select id="edit-role" class="search-input" style="width: 100%; margin-top: 8px;">
+                            <option value="Administrateur" ${user.role === 'Administrateur' ? 'selected' : ''}>Administrateur</option>
+                            <option value="Modérateur" ${user.role === 'Modérateur' ? 'selected' : ''}>Modérateur</option>
+                            <option value="Éditeur" ${user.role === 'Éditeur' ? 'selected' : ''}>Éditeur</option>
+                            <option value="Utilisateur" ${user.role === 'Utilisateur' ? 'selected' : ''}>Utilisateur</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label for="edit-status">Statut</label>
+                        <select id="edit-status" class="search-input" style="width: 100%; margin-top: 8px;">
+                            <option value="active" ${user.status === 'active' ? 'selected' : ''}>Actif</option>
+                            <option value="inactive" ${user.status === 'inactive' ? 'selected' : ''}>Inactif</option>
+                            <option value="pending" ${user.status === 'pending' ? 'selected' : ''}>En attente</option>
+                        </select>
+                    </div>
+                `;
+                
+                document.getElementById('modal-footer').innerHTML = `
+                    <button class="btn btn-secondary" id="cancel-edit">Annuler</button>
+                    <button class="btn btn-primary" id="save-edit">Enregistrer</button>
+                `;
+                
+                // Événements pour les boutons du modal
+                document.getElementById('cancel-edit').addEventListener('click', closeModal);
+                document.getElementById('save-edit').addEventListener('click', () => {
+                    // Simulation de sauvegarde
+                    showLoading();
+                    setTimeout(() => {
+                        hideLoading();
+                        closeModal();
+                        alert(`Modifications pour ${user.name} enregistrées (simulation)`);
+                    }, 1000);
+                });
+                
+                openModal();
+            }, 500);
+        }
+
+        // Ouvrir modal de suppression
+        function openDeleteModal(userId) {
+            const user = usersData.find(u => u.id === userId);
+            if (!user) return;
+            
+            document.getElementById('modal-title').textContent = `Supprimer l'utilisateur`;
+            
+            document.getElementById('modal-body').innerHTML = `
+                <p>Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>${user.name}</strong> ?</p>
+                <p>Cette action est irréversible.</p>
+            `;
+            
+            document.getElementById('modal-footer').innerHTML = `
+                <button class="btn btn-secondary" id="cancel-delete">Annuler</button>
+                <button class="btn btn-danger" id="confirm-delete">Supprimer</button>
+            `;
+            
+            // Événements pour les boutons du modal
+            document.getElementById('cancel-delete').addEventListener('click', closeModal);
+            document.getElementById('confirm-delete').addEventListener('click', () => {
+                // Simulation de suppression
+                showLoading();
+                setTimeout(() => {
+                    hideLoading();
+                    closeModal();
+                    alert(`Utilisateur ${user.name} supprimé (simulation)`);
+                }, 1000);
+            });
+            
+            openModal();
+        }
+
+        // Ouvrir modal de profil
+        function openProfileModal(userId) {
+            const user = usersData.find(u => u.id === userId);
+            if (!user) return;
+            
+            // Animation de chargement
+            showLoading();
+            
+            // Simuler un délai de chargement
+            setTimeout(() => {
+                hideLoading();
+                
+                document.getElementById('modal-title').textContent = `Profil de ${user.name}`;
+                
+                let statusText = '';
+                switch(user.status) {
+                    case 'active': statusText = 'Actif'; break;
+                    case 'inactive': statusText = 'Inactif'; break;
+                    case 'pending': statusText = 'En attente'; break;
+                }
+                
+                document.getElementById('modal-body').innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=150&h=150&q=80" alt="Avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-primary);">
+                        <div>
+                            <h4 style="margin-bottom: 5px;">${user.name}</h4>
+                            <p style="color: var(--text-secondary); margin-bottom: 5px;">${user.role}</p>
+                            <span class="status-badge ${user.status === 'active' ? 'status-active' : user.status === 'inactive' ? 'status-inactive' : 'status-pending'}">${statusText}</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <p><strong>Email :</strong> ${user.email}</p>
+                        <p><strong>ID Utilisateur :</strong> #${user.id.toString().padStart(3, '0')}</p>
+                        <p><strong>Date d'inscription :</strong> ${new Date().toLocaleDateString('fr-FR')}</p>
+                    </div>
+                `;
+                
+                document.getElementById('modal-footer').innerHTML = `
+                    <button class="btn btn-secondary" id="close-profile">Fermer</button>
+                    <button class="btn btn-primary" id="contact-user">Contacter</button>
+                `;
+                
+                // Événements pour les boutons du modal
+                document.getElementById('close-profile').addEventListener('click', closeModal);
+                document.getElementById('contact-user').addEventListener('click', () => {
+                    alert(`Ouverture de l'interface de contact avec ${user.name} (simulation)`);
+                    closeModal();
+                });
+                
+                openModal();
+            }, 500);
+        }
+
+        // Ouvrir modal
+        function openModal() {
+            modalOverlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Fermer modal
+        function closeModal() {
+            modalOverlay.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Afficher l'indicateur de chargement
+        function showLoading() {
+            loadingOverlay.classList.add('show');
+        }
+
+        // Cacher l'indicateur de chargement
+        function hideLoading() {
+            loadingOverlay.classList.remove('show');
+        }
+
+        // Gérer le redimensionnement de la fenêtre
+        function handleResize() {
+            if (window.innerWidth <= 1024) {
+                sidebar.classList.add('collapsed');
+                sidebar.classList.remove('show');
+                const icon = sidebarToggle.querySelector('i');
+                icon.classList.remove('fa-chevron-left');
+                icon.classList.add('fa-chevron-right');
+            } else {
+                sidebar.classList.remove('collapsed');
+                const icon = sidebarToggle.querySelector('i');
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-left');
+            }
+        }
+    </script>
+    <!-- {%  block script  %}
+
+    {%  endblock script  %} -->
+</body>
+</html>
